@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetFeliz - Pet Shop</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">PetFeliz</div>
+            <ul>
+                <li><a href="#hero">Início</a></li>
+                <li><a href="#servicos">Serviços</a></li>
+                <li><a href="#vacinas">Vacinas</a></li>
+                <li><a href="#sobre">Sobre Nós</a></li>
+                <li><a href="#contato">Contato</a></li>
+            </ul>
+            <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">☀️</button>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>PetFeliz</h1>
+            <p>O melhor para seu melhor amigo</p>
+        </section>
+
+        <section id="servicos">
+            <h2>Nossos Serviços</h2>
+            <div class="servicos-grid">
+                <article class="card">
+                    <span class="card-icon">🛁</span>
+                    <h3>Banho e Tosa</h3>
+                    <p>Deixe seu pet limpo e bem cuidado! Oferecemos banho com produtos específicos para cada tipo de pele e tosa profissional.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">⚕️</span>
+                    <h3>Veterinário</h3>
+                    <p>Consultas, vaccinas e tratamentos com profissionais experientes. Seu pet em boas mãos com atendimento especializado.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🏨</span>
+                    <h3>Hotel para Pets</h3>
+                    <p>Alojamento seguro e confortável quando você precisar se ausentar. Monitoramento 24h e muito carinho.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🛒</span>
+                    <h3>Pet Shop</h3>
+                    <p>Rações premium, petiscos naturais, brinquedos e acessórios selecionados para o bem-estar do seu amigo.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="vacinas">
+            <h2>Vacinas para Pets</h2>
+            <p class="section-intro">Manter a carteirinha de vacinação em dia é essencial para a saúde e segurança do seu pet. Confira as principais vacinas que aplicamos:</p>
+            <div class="servicos-grid">
+                <article class="card">
+                    <span class="card-icon">🐶</span>
+                    <h3>Vacinas para Cães</h3>
+                    <p>V8/V10 (polivalente), antirrábica, giárdia e tosse dos canis — proteção completa contra as principais doenças caninas.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🐱</span>
+                    <h3>Vacinas para Gatos</h3>
+                    <p>Quíntupla felina (V5), antirrábica e leucemia felina (FeLV) — cuidado essencial para a saúde do seu gato.</p>
+                </article>
+                <article class="card">
+                    <span class="card-icon">🐾</span>
+                    <h3>Vacinas para Filhotes</h3>
+                    <p>Calendário completo de imunização a partir das 6 semanas de vida, com acompanhamento veterinário em cada dose.</p>
+                </article>
+            </div>
+        </section>
+
+        <section id="sobre">
+            <h2>Sobre Nós</h2>
+            <div class="sobre-conteudo">
+                <p>A <strong>PetFeliz</strong> nasceu em 2015 com uma missão simples: oferecer o melhor cuidado para os pets que amamos. Somos uma equipe apasionada por animais, com mais de 10 anos de experiência no mercado pet.</p>
+                <p>Contamos com estrutura moderna, profissionais capacitados e muito carinho em cada atendimento. Tratamos cada pet como se fosse nosso próprio, garantindo segurança e conforto.</p>
+                <div class="sobre-diferenciais">
+                    <div class="diferencial">
+                        <span class="diferencial-numero">+5.000</span>
+                        <span class="diferencial-label">Pets Atendidos</span>
+                    </div>
+                    <div class="diferencial">
+                        <span class="diferencial-numero">10+</span>
+                        <span class="diferencial-label">Anos de Experiência</span>
+                    </div>
+                    <div class="diferencial">
+                        <span class="diferencial-numero">98%</span>
+                        <span class="diferencial-label">Clientes Satisfeitos</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer id="contato">
+        <div class="footer-content">
+            <div class="footer-info">
+                <h3>PetFeliz</h3>
+                <p>O melhor para seu melhor amigo.</p>
+                <p>Contato: (11) 99999-9999</p>
+                <p>Endereço: Rua dos Pets, 123 - São Paulo, SP</p>
+            </div>
+            <div class="footer-form">
+                <h3>Fale Conosco</h3>
+                <form>
+                    <input type="text" placeholder="Seu nome" required>
+                    <input type="email" placeholder="Seu email" required>
+                    <textarea placeholder="Sua mensagem" rows="3" required></textarea>
+                    <button type="submit">Enviar</button>
+                </form>
+            </div>
+        </div>
+        <p class="footer-copy">PetFeliz - Todos os direitos reservados</p>
+    </footer>
+
+    <a href="https://wa.me/5511999999999" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <span>💬</span>
+    </a>
+    <button id="backToTop" class="back-to-top" aria-label="Voltar ao topo">↑</button>
+    <script src="script.js"></script>
+</body>
+</html>

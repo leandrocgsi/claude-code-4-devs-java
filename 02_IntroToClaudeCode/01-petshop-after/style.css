@@ -1,0 +1,515 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+:root {
+    --color-bg-page: #FFFFFF;
+    --color-bg-elevated: #F5F7F3;
+    --color-bg-dark: #191C1E;
+    --color-text-primary: #191C1E;
+    --color-text-on-dark: #FFFFFF;
+    --color-text-on-accent: #191C1E;
+    --color-accent: #97D241;
+    --color-accent-hover: #7ab82e;
+    --color-accent-soft: rgba(151, 210, 65, 0.15);
+    --color-border: rgba(25, 28, 30, 0.12);
+    --color-border-on-dark: rgba(255, 255, 255, 0.15);
+    --color-input-bg: #FFFFFF;
+    --color-input-text: #191C1E;
+    --color-input-placeholder: #6b7280;
+    --color-shadow: rgba(25, 28, 30, 0.08);
+}
+
+body.dark-mode {
+    --color-bg-page: #14171A;
+    --color-bg-elevated: #1E2226;
+    --color-bg-dark: #101214;
+    --color-text-primary: #E8EAED;
+    --color-text-on-dark: #E8EAED;
+    --color-accent-soft: rgba(151, 210, 65, 0.25);
+    --color-border: rgba(255, 255, 255, 0.1);
+    --color-border-on-dark: rgba(255, 255, 255, 0.1);
+    --color-input-bg: #1E2226;
+    --color-input-text: #E8EAED;
+    --color-input-placeholder: #8b9199;
+    --color-shadow: rgba(0, 0, 0, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-page);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+header {
+    background-color: var(--color-bg-dark);
+    padding: 1rem 2rem;
+    transition: background-color 0.3s ease;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 2rem;
+}
+
+.logo {
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+    flex: 1;
+}
+
+nav ul li a {
+    color: var(--color-text-on-dark);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+nav ul li a:hover {
+    color: var(--color-accent);
+}
+
+.theme-toggle {
+    background: none;
+    border: 2px solid var(--color-accent);
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    height: 44px;
+}
+
+.theme-toggle:hover {
+    background-color: var(--color-accent);
+    transform: scale(1.05);
+}
+
+.theme-toggle:active {
+    transform: scale(0.95);
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    background-color: var(--color-bg-page);
+    transition: background-color 0.3s ease;
+}
+
+#hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    margin-bottom: 1rem;
+}
+
+#hero p {
+    font-size: 1.25rem;
+    color: var(--color-text-primary);
+}
+
+#servicos {
+    padding: 4rem 2rem;
+}
+
+#vacinas {
+    padding: 4rem 2rem;
+    background-color: var(--color-bg-elevated);
+    transition: background-color 0.3s ease;
+}
+
+#sobre {
+    padding: 4rem 2rem;
+}
+
+#servicos h2, #vacinas h2, #sobre h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--color-text-primary);
+}
+
+.servicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+    box-shadow: 0 2px 8px var(--color-shadow);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-accent);
+    box-shadow: 0 8px 24px var(--color-accent-soft);
+}
+
+.card-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.card h3 {
+    color: var(--color-accent);
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.card p {
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.sobre-conteudo p {
+    max-width: 700px;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.section-intro {
+    max-width: 700px;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    color: var(--color-text-primary);
+}
+
+.sobre-diferenciais {
+    display: flex;
+    gap: 3rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.diferencial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.diferencial-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-accent);
+}
+
+.diferencial-label {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+}
+
+section.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+footer {
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-on-dark);
+    padding: 3rem 2rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.footer-info h3 {
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-info p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.footer-form h3 {
+    color: var(--color-accent);
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-form input,
+.footer-form textarea {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--color-accent);
+    border-radius: 8px;
+    background-color: var(--color-input-bg);
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: var(--color-input-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.footer-form input::placeholder,
+.footer-form textarea::placeholder {
+    color: var(--color-input-placeholder);
+}
+
+.footer-form input:focus,
+.footer-form textarea:focus {
+    outline: none;
+    border-color: var(--color-accent-hover);
+}
+
+.footer-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.footer-form button {
+    padding: 0.75rem 1.5rem;
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.footer-form button:hover {
+    background-color: var(--color-accent-hover);
+}
+
+.footer-copy {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border-on-dark);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 60px;
+    height: 60px;
+    background-color: var(--color-accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px var(--color-accent-soft);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+    z-index: 1000;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px var(--color-accent-soft);
+}
+
+.whatsapp-float span {
+    font-size: 1.75rem;
+}
+
+.back-to-top {
+    position: fixed;
+    bottom: 6.5rem;
+    right: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--color-bg-dark);
+    color: var(--color-accent);
+    border: 2px solid var(--color-accent);
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--color-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease, background-color 0.3s ease, color 0.3s ease;
+    z-index: 999;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    background-color: var(--color-accent);
+    color: var(--color-text-on-accent);
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    nav ul {
+        gap: 1rem;
+        order: 2;
+    }
+
+    .theme-toggle {
+        order: 3;
+    }
+
+    nav ul li a {
+        font-size: 0.9rem;
+    }
+
+    #hero {
+        padding: 4rem 1.5rem;
+    }
+
+    #hero h1 {
+        font-size: 2rem;
+    }
+
+    #hero p {
+        font-size: 1rem;
+    }
+
+    #servicos, #vacinas, #sobre {
+        padding: 3rem 1.5rem;
+    }
+
+    #servicos h2, #vacinas h2, #sobre h2 {
+        font-size: 1.5rem;
+    }
+
+    .servicos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sobre-diferenciais {
+        gap: 1.5rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    footer {
+        padding: 2rem 1.5rem;
+    }
+
+    .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .whatsapp-float span {
+        font-size: 1.5rem;
+    }
+
+    .back-to-top {
+        bottom: 5.5rem;
+        width: 44px;
+        height: 44px;
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 1rem;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #hero {
+        padding: 3rem 1rem;
+    }
+
+    #hero h1 {
+        font-size: 1.75rem;
+    }
+
+    #servicos, #vacinas, #sobre {
+        padding: 2rem 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .card p {
+        font-size: 0.9rem;
+    }
+
+    .diferencial-numero {
+        font-size: 1.5rem;
+    }
+}

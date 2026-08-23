@@ -1,0 +1,384 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    color: #191C1E;
+    background-color: #FFFFFF;
+}
+
+header {
+    background-color: #191C1E;
+    padding: 1rem 2rem;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    color: #97D241;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+nav ul li a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+nav ul li a:hover {
+    color: #97D241;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+#hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 2rem;
+    background-color: #FFFFFF;
+}
+
+#hero h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #97D241;
+    margin-bottom: 1rem;
+}
+
+#hero p {
+    font-size: 1.25rem;
+    color: #191C1E;
+}
+
+#servicos, #sobre {
+    padding: 4rem 2rem;
+}
+
+#servicos h2, #sobre h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #191C1E;
+}
+
+.servicos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.card {
+    background-color: #FFFFFF;
+    border: 2px solid #97D241;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(151, 210, 65, 0.2);
+}
+
+.card-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.card h3 {
+    color: #97D241;
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.card p {
+    color: #191C1E;
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.sobre-conteudo p {
+    max-width: 700px;
+    line-height: 1.8;
+    margin-bottom: 1.5rem;
+}
+
+.sobre-diferenciais {
+    display: flex;
+    gap: 3rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.diferencial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.diferencial-numero {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #97D241;
+}
+
+.diferencial-label {
+    font-size: 0.9rem;
+    color: #191C1E;
+}
+
+section.visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+}
+
+footer {
+    background-color: #191C1E;
+    color: #FFFFFF;
+    padding: 3rem 2rem;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.footer-info h3 {
+    color: #97D241;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-info p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.footer-form h3 {
+    color: #97D241;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.footer-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.footer-form input,
+.footer-form textarea {
+    padding: 0.75rem 1rem;
+    border: 2px solid #97D241;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #191C1E;
+}
+
+.footer-form input::placeholder,
+.footer-form textarea::placeholder {
+    color: #666;
+}
+
+.footer-form input:focus,
+.footer-form textarea:focus {
+    outline: none;
+    border-color: #7ab82e;
+}
+
+.footer-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.footer-form button {
+    padding: 0.75rem 1.5rem;
+    background-color: #97D241;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.footer-form button:hover {
+    background-color: #7ab82e;
+}
+
+.footer-copy {
+    max-width: 1200px;
+    margin: 2rem auto 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.whatsapp-float {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 60px;
+    height: 60px;
+    background-color: #97D241;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(151, 210, 65, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    z-index: 1000;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(151, 210, 65, 0.5);
+}
+
+.whatsapp-float span {
+    font-size: 1.75rem;
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    nav ul {
+        gap: 1rem;
+    }
+
+    nav ul li a {
+        font-size: 0.9rem;
+    }
+
+    #hero {
+        padding: 4rem 1.5rem;
+    }
+
+    #hero h1 {
+        font-size: 2rem;
+    }
+
+    #hero p {
+        font-size: 1rem;
+    }
+
+    #servicos, #sobre {
+        padding: 3rem 1.5rem;
+    }
+
+    #servicos h2, #sobre h2 {
+        font-size: 1.5rem;
+    }
+
+    .servicos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sobre-diferenciais {
+        gap: 1.5rem;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    footer {
+        padding: 2rem 1.5rem;
+    }
+
+    .whatsapp-float {
+        width: 52px;
+        height: 52px;
+        bottom: 1rem;
+        right: 1rem;
+    }
+
+    .whatsapp-float span {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 1rem;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    nav ul {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    #hero {
+        padding: 3rem 1rem;
+    }
+
+    #hero h1 {
+        font-size: 1.75rem;
+    }
+
+    #servicos, #sobre {
+        padding: 2rem 1rem;
+    }
+
+    .card {
+        padding: 1.5rem;
+    }
+
+    .card-icon {
+        font-size: 2.5rem;
+    }
+
+    .card h3 {
+        font-size: 1.1rem;
+    }
+
+    .card p {
+        font-size: 0.9rem;
+    }
+
+    .diferencial-numero {
+        font-size: 1.5rem;
+    }
+}
