@@ -1,15 +1,24 @@
 package br.com.erudio.dto;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @JsonPropertyOrder({"id", "firstName", "lastName", "address", "gender"})
 public class PersonDTO {
 
     private Long id;
+
+    @NotBlank(message = "First name must not be empty")
     private String firstName;
+
+    @NotBlank(message = "Last name must not be empty")
     private String lastName;
-    private String address;
+
+    @NotNull(message = "Gender must not be null")
     private String gender;
+
+    private AddressDTO address;
 
     public PersonDTO() {}
 
@@ -37,14 +46,6 @@ public class PersonDTO {
         this.lastName = lastName;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
     public String getGender() {
         return gender;
     }
@@ -53,14 +54,22 @@ public class PersonDTO {
         this.gender = gender;
     }
 
+    public AddressDTO getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDTO address) {
+        this.address = address;
+    }
+
     @Override
     public String toString() {
         return "PersonDTO{" +
                 "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", address='" + address + '\'' +
                 ", gender='" + gender + '\'' +
+                ", address=" + address +
                 '}';
     }
 }
