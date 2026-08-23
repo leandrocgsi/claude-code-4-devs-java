@@ -1,75 +1,58 @@
 package br.com.erudio;
 
+import br.com.erudio.dto.PersonDTO;
 import br.com.erudio.model.Person;
+import br.com.erudio.repository.PersonRepository;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Service
 public class PersonServices {
 
-    private final AtomicLong counter = new AtomicLong();
-
     private Logger logger = Logger.getLogger(PersonServices.class.getName());
 
-    public List<Person> findAll() {
+    @Autowired
+    private PersonRepository repository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+    public List<PersonDTO> findAll() {
         logger.info("Finding all People!");
-
-        List<Person> persons = new ArrayList<Person>();
-        for (int i = 0; i < 8; i++) {
-            Person person = mockPerson(i);
-            persons.add(person);
-        }
-        return persons;
+        return repository.findAll()
+                .stream()
+                .map(person -> modelMapper.map(person, PersonDTO.class))
+                .collect(Collectors.toList());
     }
 
-    public Person findById(String id) {
+    public PersonDTO findById(String id) {
         logger.info("Finding one Person!");
-
-            Person person = new Person();
-            person.setId(counter.incrementAndGet());
-            person.setFirstName("Leandro");
-            person.setLastName("Costa");
-            person.setAddress("Uberlândia - Minas Gerais - Brasil");
-            person.setGender("Male");
-            return person;
-        }
-
-        public Person create(Person person) {
-
-            logger.info("Creating one Person!");
-
-            return person;
-        }
-
-        public Person update(Person person) {
-
-            logger.info("Updating one Person!");
-
-            return person;
-        }
-
-        public void delete(String id) {
-
-            logger.info("Deleting one Person!");
-
-        }
-
-
-
-        private Person mockPerson(int i) {
-            Person person = new Person();
-            person.setId(counter.incrementAndGet());
-            person.setFirstName("Firstname " + i);
-            person.setLastName("Lastname " + i);
-            person.setAddress("Some Address in Brasil");
-            person.setGender("Male");
-            return person;
-        }
+        Person person = repository.findById(Long.parseLong(id)).orElse(null);
+        return person != null ? modelMapper.map(person, PersonDTO.class) : null;
     }
 
+    public PersonDTO create(PersonDTO personDTO) {
+        logger.info("Creating one Person!");
+        Person person = modelMapper.map(personDTO, Person.class);
+        Person savedPerson = repository.save(person);
+        return modelMapper.map(savedPerson, PersonDTO.class);
+    }
+
+    public PersonDTO update(PersonDTO personDTO) {
+        logger.info("Updating one Person!");
+        Person person = modelMapper.map(personDTO, Person.class);
+        Person updatedPerson = repository.save(person);
+        return modelMapper.map(updatedPerson, PersonDTO.class);
+    }
+
+    public void delete(String id) {
+        logger.info("Deleting one Person!");
+        repository.deleteById(Long.parseLong(id));
+    }
+}
 
