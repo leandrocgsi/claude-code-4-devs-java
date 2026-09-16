@@ -1,0 +1,25 @@
+{
+  "project": {
+    "name": "PetFeliz - Pet Shop Website",
+    "type": "static-website",
+    "language": "HTML/CSS/JavaScript",
+    "description": "Single-page marketing website for a pet shop business"
+  },
+  "development": {
+    "noFramework": true,
+    "noBuildTools": true,
+    "serverCommand": "python -m http.server 8000",
+    "port": 8000,
+    "liveReload": false
+  },
+  "codeStyle": {
+    "indent": 4,
+    "quotes": "double",
+    "semicolons": true,
+    "trailingComma": false
+  },
+  "git": {
+    "commitMessageStyle": "conventional-lite",
+    "example": "Add CLAUDE.md with architecture and development guide for PetFeliz project"
+  }
+}
