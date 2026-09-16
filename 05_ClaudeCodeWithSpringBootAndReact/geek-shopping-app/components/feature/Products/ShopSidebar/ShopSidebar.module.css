@@ -1,0 +1,46 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.groupTitle {
+  margin: 0;
+}
+
+.groupBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  padding: var(--spacing-16);
+  background-color: var(--background);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-8);
+  font-size: var(--font-size-14);
+  color: var(--text-onsurface);
+  cursor: pointer;
+}
+
+.optionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.count {
+  padding: 0 var(--spacing-8);
+  border: 1px solid var(--outline);
+  color: var(--text-oninactive);
+  font-size: var(--font-size-12);
+}

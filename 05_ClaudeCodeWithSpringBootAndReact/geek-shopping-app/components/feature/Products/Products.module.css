@@ -1,0 +1,140 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-32);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-32);
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  background-color: var(--background);
+  font-size: var(--font-size-14);
+  color: var(--text-oninactive);
+}
+
+.breadcrumbSeparator {
+  color: var(--outline);
+}
+
+.breadcrumbActive {
+  color: var(--text-onsurface);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+.viewToggle {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.viewButton,
+.viewButtonActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--outline);
+  background-color: var(--background);
+  color: var(--text-oninactive);
+  cursor: pointer;
+}
+
+.viewButtonActive {
+  background-color: var(--brand-dark);
+  border-color: var(--brand-dark);
+  color: var(--text-oninverse);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+}
+
+.status {
+  color: var(--text-oninactive);
+}
+
+.statusError {
+  color: var(--error);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-24);
+}
+
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  background-color: var(--surface);
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.pageLink,
+.pageLinkActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--spacing-12);
+  border: 1px solid var(--outline);
+  background-color: var(--background);
+  color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+  cursor: pointer;
+}
+
+.pageLink:disabled {
+  color: var(--text-oninactive);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pageLinkActive {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--on-primary);
+}

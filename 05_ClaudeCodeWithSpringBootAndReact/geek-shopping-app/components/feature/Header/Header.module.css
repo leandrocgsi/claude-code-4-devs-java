@@ -1,0 +1,255 @@
+.topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  padding: var(--spacing-8) var(--spacing-32);
+  background-color: var(--surface);
+}
+
+.infoLinks {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+.infoLink {
+  color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+}
+
+.topbarActions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 32px;
+  padding: 0 var(--spacing-12);
+  border: 1px solid var(--outline);
+  background-color: var(--background);
+  color: var(--text-onsurface);
+  font-size: var(--font-size-12);
+  cursor: pointer;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 10;
+  display: none;
+  flex-direction: column;
+  min-width: 140px;
+  background-color: var(--background);
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow-hover);
+}
+
+.dropdown:hover .dropdownMenu,
+.dropdown:focus-within .dropdownMenu {
+  display: flex;
+}
+
+.dropdownItem {
+  padding: var(--spacing-8) var(--spacing-12);
+  border: none;
+  background-color: transparent;
+  color: var(--text-onsurface);
+  text-align: left;
+  font-size: var(--font-size-14);
+  cursor: pointer;
+}
+
+.dropdownItem:hover {
+  background-color: var(--surface);
+}
+
+.topRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-16) var(--spacing-32);
+  background-color: var(--background);
+}
+
+.logo {
+  display: inline-flex;
+  text-decoration: none;
+  font-size: var(--font-size-24);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.logoDark,
+.logoPrimary {
+  padding: var(--spacing-4) var(--spacing-12);
+}
+
+.logoDark {
+  background-color: var(--brand-dark);
+  color: var(--brand-primary);
+}
+
+.logoPrimary {
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  margin-left: -2px;
+}
+
+.search {
+  position: relative;
+  flex: 1 1 240px;
+  max-width: 480px;
+}
+
+.search :global(input) {
+  padding-right: var(--spacing-32);
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-12);
+  transform: translateY(-50%);
+  color: var(--brand-primary);
+  pointer-events: none;
+}
+
+.customerService {
+  margin-left: auto;
+  text-align: right;
+}
+
+.customerServiceLabel {
+  margin: 0;
+  color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+}
+
+.customerServicePhone {
+  margin: 0;
+  color: var(--text-onsurface);
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-medium);
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  background-color: var(--brand-dark);
+}
+
+.categoriesWrap {
+  position: relative;
+}
+
+.categoriesToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  height: 100%;
+  padding: var(--spacing-16) var(--spacing-24);
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  border: none;
+  font-size: var(--font-size-14);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+}
+
+.categoriesPanel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  min-width: 220px;
+  background-color: var(--background);
+  border: 1px solid var(--outline);
+  box-shadow: var(--shadow-hover);
+}
+
+.categoryItem {
+  display: block;
+  padding: var(--spacing-12) var(--spacing-16);
+  color: var(--text-onsurface);
+  text-decoration: none;
+  font-size: var(--font-size-14);
+}
+
+.categoryItem:hover {
+  background-color: var(--surface);
+  color: var(--brand-dark);
+}
+
+.navLinks {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.navLink,
+.navLinkActive {
+  padding: var(--spacing-16) var(--spacing-16);
+  color: var(--text-oninverse);
+  text-decoration: none;
+  font-size: var(--font-size-14);
+}
+
+.navLink:hover {
+  color: var(--brand-primary);
+}
+
+.navLinkActive {
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  margin-left: auto;
+  padding: 0 var(--spacing-24);
+}
+
+.actionLink {
+  position: relative;
+  display: inline-flex;
+  color: var(--brand-primary);
+}
+
+.badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+@media (max-width: 900px) {
+  .topbar,
+  .customerService {
+    display: none;
+  }
+}

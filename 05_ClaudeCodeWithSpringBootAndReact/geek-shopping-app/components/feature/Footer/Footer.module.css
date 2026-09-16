@@ -1,0 +1,132 @@
+.footer {
+  margin-top: var(--spacing-40);
+  background-color: var(--brand-dark);
+  color: var(--text-oninverse);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: var(--spacing-32);
+  padding: var(--spacing-32);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 900px) {
+  .columns {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aboutColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.heading {
+  margin: 0 0 var(--spacing-12);
+  text-transform: uppercase;
+  font-size: var(--font-size-16);
+}
+
+.text {
+  margin: 0;
+  color: var(--outline);
+  font-size: var(--font-size-14);
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin: 0;
+  color: var(--outline);
+  font-size: var(--font-size-14);
+}
+
+.infoRow svg {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+}
+
+.linkList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.link {
+  color: var(--outline);
+  text-decoration: none;
+  font-size: var(--font-size-14);
+}
+
+.link:hover {
+  color: var(--brand-primary);
+}
+
+.newsletterForm {
+  display: flex;
+  gap: var(--spacing-8);
+  margin-bottom: var(--spacing-16);
+}
+
+.newsletterForm > :first-child {
+  flex: 1;
+}
+
+.followHeading {
+  margin: var(--spacing-16) 0 var(--spacing-12);
+  text-transform: uppercase;
+  font-size: var(--font-size-14);
+}
+
+.socialRow {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.socialButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+}
+
+.socialButton:hover {
+  background-color: var(--brand-primary-hover);
+}
+
+.bottomBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  max-width: 1200px;
+  margin: 0 auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-16) var(--spacing-32);
+}
+
+.copyright {
+  margin: 0;
+  color: var(--outline);
+  font-size: var(--font-size-12);
+}
+
+.payments {
+  height: 24px;
+  width: auto;
+}

@@ -1,0 +1,23 @@
+:root {
+  --brand-primary: #ffd333;
+  --brand-primary-hover: #ffc800;
+  --on-primary: #3d464d;
+
+  --brand-dark: #3d464d;
+  --brand-dark-hover: #23292d;
+  --on-brand-dark: #ffffff;
+
+  --background: #ffffff;
+  --surface: #f5f5f5;
+
+  --text-onsurface: #212529;
+  --text-oninactive: #6c757d;
+  --text-oninverse: #ffffff;
+
+  --outline: #dee2e6;
+
+  --error: #dc3545;
+  --success: #28a745;
+  --alert: #ffc107;
+  --info: #17a2b8;
+}

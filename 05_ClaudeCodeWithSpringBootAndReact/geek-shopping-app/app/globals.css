@@ -1,0 +1,9 @@
+@import 'tailwindcss';
+@import '../styles/_reset.css';
+@import '../styles/tokens/index.css';
+
+body {
+  background-color: var(--surface);
+  color: var(--text-onsurface);
+  font-family: var(--font-family-base);
+}

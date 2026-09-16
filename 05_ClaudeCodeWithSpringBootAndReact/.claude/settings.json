@@ -1,0 +1,6 @@
+{
+  "enabledPlugins": {
+    "erudio-spring-boot@erudio-spring-boot-marketplace": true,
+    "erudio-frontend@erudio-frontend-marketplace": true
+  }
+}

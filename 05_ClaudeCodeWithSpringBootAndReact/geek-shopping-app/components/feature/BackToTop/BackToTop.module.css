@@ -1,0 +1,29 @@
+.button {
+  position: fixed;
+  right: var(--spacing-32);
+  bottom: var(--spacing-32);
+  z-index: 11;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  cursor: pointer;
+  animation: bounce 1s infinite alternate;
+}
+
+.button:hover {
+  background-color: var(--brand-primary-hover);
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-15px);
+  }
+}
