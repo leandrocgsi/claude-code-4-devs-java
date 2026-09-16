@@ -1,0 +1,31 @@
+cors:
+  originPatterns: http://localhost:8080,http://localhost:3000
+
+spring:
+  application:
+    name: geek-shopping
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/geek-shopping?useTimezone=true&serverTimezone=UTC
+    username: root
+    password: admin123
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc.batch_size: 15
+        order_inserts: true
+        order_updates: true
+
+logging:
+  level:
+    root: INFO
+
+springdoc:
+  paths-to-match:
+    - /api/**/v1/**
+  swagger-ui:
+    use-root-path: true
