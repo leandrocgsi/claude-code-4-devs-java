@@ -1,0 +1,139 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-32);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  background-color: var(--background);
+  font-size: var(--font-size-14);
+  color: var(--text-oninactive);
+}
+
+.breadcrumbSeparator {
+  color: var(--outline);
+}
+
+.breadcrumbActive {
+  color: var(--text-onsurface);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-32);
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-16);
+  padding: var(--spacing-24);
+  background-color: var(--background);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  grid-column: 1 / -1;
+  font-size: var(--font-size-14);
+  color: var(--text-onsurface);
+}
+
+@media (max-width: 600px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+}
+
+.shippingSection {
+  margin-top: var(--spacing-24);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-24);
+  background-color: var(--background);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  font-size: var(--font-size-14);
+  color: var(--text-onsurface);
+}
+
+.summaryDivider {
+  border-top: 1px solid var(--outline);
+}
+
+.summaryTotalRow {
+  display: flex;
+  justify-content: space-between;
+  padding-top: var(--spacing-12);
+  border-top: 1px solid var(--outline);
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-onsurface);
+}
+
+.payment {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+  padding: var(--spacing-24);
+  background-color: var(--background);
+}
+
+.paymentOption {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  font-size: var(--font-size-14);
+  color: var(--text-onsurface);
+}
+
+.placeOrderButton {
+  width: 100%;
+  height: 48px;
+  margin-top: var(--spacing-8);
+}
+
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-40);
+  background-color: var(--background);
+  text-align: center;
+}
+
+.confirmationLink {
+  color: var(--brand-dark);
+  text-decoration: underline;
+}

@@ -1,0 +1,55 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgb(0 0 0 / 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-16);
+  z-index: 1000;
+}
+
+.modal {
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: var(--background);
+  border-radius: var(--radius-12);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 20%);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-16) var(--spacing-24);
+  border-bottom: 1px solid var(--outline);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-20);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-onsurface);
+}
+
+.closeButton {
+  border: none;
+  background: transparent;
+  font-size: var(--font-size-24);
+  line-height: 1;
+  color: var(--text-oninactive);
+  cursor: pointer;
+}
+
+.body {
+  padding: var(--spacing-24);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+  padding: var(--spacing-16) var(--spacing-24);
+  border-top: 1px solid var(--outline);
+}
