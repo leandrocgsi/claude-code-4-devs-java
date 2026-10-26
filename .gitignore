@@ -3,7 +3,7 @@
 **/erudio-*
 **/skills/
 !**/.claude/skills/
-!06_GeekShoppingCatalog/erudio/plugins/erudio/skills/
+!**/erudio/plugins/erudio/skills/
 
 # Node / npm
 **/node_modules

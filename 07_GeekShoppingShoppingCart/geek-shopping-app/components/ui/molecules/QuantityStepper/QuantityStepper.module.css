@@ -1,0 +1,33 @@
+.quantity {
+  display: inline-flex;
+  align-items: center;
+}
+
+.quantityButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 40px;
+  border: 1px solid var(--outline);
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  cursor: pointer;
+}
+
+.quantityButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.quantityValue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 40px;
+  border-top: 1px solid var(--outline);
+  border-bottom: 1px solid var(--outline);
+  background-color: var(--surface);
+  font-size: var(--font-size-14);
+}

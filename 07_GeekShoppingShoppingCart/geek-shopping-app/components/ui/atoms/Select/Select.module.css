@@ -1,0 +1,25 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.label {
+  font-size: var(--font-size-12);
+  color: var(--text-oninactive);
+}
+
+.select {
+  height: 40px;
+  padding: 0 var(--spacing-12);
+  border: 1px solid var(--outline);
+  border-radius: var(--radius-8);
+  background-color: var(--background);
+  color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+}
+
+.select:focus {
+  outline: 2px solid var(--surface-primary);
+  outline-offset: 1px;
+}

@@ -1,0 +1,122 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  padding: var(--spacing-32);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-32);
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-24);
+  min-width: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-12) var(--spacing-16);
+  background-color: var(--background);
+  font-size: var(--font-size-14);
+  color: var(--text-oninactive);
+}
+
+.breadcrumbSeparator {
+  color: var(--outline);
+}
+
+.breadcrumbActive {
+  color: var(--text-onsurface);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+}
+
+.viewToggle {
+  display: flex;
+  gap: var(--spacing-8);
+}
+
+.viewButton,
+.viewButtonActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--outline);
+  background-color: var(--background);
+  color: var(--text-oninactive);
+  cursor: pointer;
+}
+
+.viewButtonActive {
+  background-color: var(--brand-dark);
+  border-color: var(--brand-dark);
+  color: var(--text-oninverse);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-12);
+}
+
+.searchInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  margin: 0;
+  font-size: var(--font-size-14);
+  color: var(--text-onsurface);
+}
+
+.clearSearch {
+  border: none;
+  background: none;
+  color: var(--text-oninactive);
+  font-size: var(--font-size-14);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-12);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-24);
+}
+
+.thumbnail {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  background-color: var(--surface);
+}

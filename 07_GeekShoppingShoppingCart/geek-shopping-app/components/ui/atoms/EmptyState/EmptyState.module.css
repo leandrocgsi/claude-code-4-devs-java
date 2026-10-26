@@ -1,0 +1,26 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-32);
+  background-color: var(--background);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--font-size-16);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-onsurface);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--font-size-14);
+  color: var(--text-oninactive);
+}
+
+.action {
+  margin-top: var(--spacing-8);
+}

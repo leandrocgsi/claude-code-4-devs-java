@@ -1,0 +1,39 @@
+server:
+  port: 8888
+
+cors:
+  originPatterns: http://localhost:8080,http://localhost:3000
+
+spring:
+  application:
+    name: geek-shopping
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 2
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        check_nullability: true
+        jdbc.batch_size: 15
+        order_inserts: true
+        order_updates: true
+
+logging:
+  level:
+    root: INFO
+
+springdoc:
+  paths-to-match:
+    - /api/**/v1/**
+  swagger-ui:
+    use-root-path: true

@@ -1,0 +1,272 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-40);
+  padding: var(--spacing-32);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-24);
+}
+
+@media (max-width: 800px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heroCarousel {
+  position: relative;
+  height: 430px;
+}
+
+.heroSlide {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.heroCaption {
+  background-color: hsla(0, 0%, 0%, 0.35);
+  padding: var(--spacing-32);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--text-oninverse);
+  font-size: var(--font-size-32);
+  text-transform: uppercase;
+}
+
+.heroText {
+  margin: 0;
+  max-width: 420px;
+  color: var(--text-oninverse);
+  font-size: var(--font-size-14);
+}
+
+.heroLink {
+  display: inline-flex;
+  padding: var(--spacing-8) var(--spacing-24);
+  border: 1px solid var(--text-oninverse);
+  color: var(--text-oninverse);
+  text-decoration: none;
+  font-size: var(--font-size-14);
+}
+
+.heroLink:hover {
+  background-color: var(--text-oninverse);
+  color: var(--brand-dark);
+}
+
+.offers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.offer,
+.midOffer {
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+}
+
+.midOffer {
+  min-height: 300px;
+}
+
+.midOffers {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-16);
+}
+
+@media (max-width: 700px) {
+  .midOffers {
+    grid-template-columns: 1fr;
+  }
+}
+
+.offerImage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.5s;
+}
+
+.offer:hover .offerImage,
+.midOffer:hover .offerImage {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.offerContent {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  background-color: rgba(61, 70, 77, 0.5);
+  text-align: center;
+}
+
+.offerBadge {
+  color: var(--text-oninverse);
+  text-transform: uppercase;
+  font-size: var(--font-size-12);
+}
+
+.offerTitle {
+  margin: 0;
+  color: var(--text-oninverse);
+  font-size: var(--font-size-24);
+  font-weight: var(--font-weight-bold);
+}
+
+.offerLink {
+  display: inline-flex;
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-24);
+  background-color: var(--brand-primary);
+  color: var(--on-primary);
+  text-decoration: none;
+  font-size: var(--font-size-14);
+}
+
+.offerLink:hover {
+  background-color: var(--brand-primary-hover);
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-16);
+}
+
+.feature {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+  padding: var(--spacing-24);
+  background-color: var(--background);
+  color: var(--brand-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.feature span {
+  color: var(--text-onsurface);
+}
+
+.categoryGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-16);
+}
+
+.categoryCard {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  text-decoration: none;
+  background-color: var(--background);
+  transition: 0.5s;
+}
+
+.categoryCard:hover {
+  background-color: var(--brand-primary);
+}
+
+.categoryImageWrap {
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
+  flex-shrink: 0;
+}
+
+.categoryImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: 0.5s;
+}
+
+.categoryCard:hover .categoryImage {
+  transform: scale(1.2) rotate(5deg);
+}
+
+.categoryName {
+  margin: 0;
+  color: var(--text-onsurface);
+  font-weight: var(--font-weight-medium);
+}
+
+.categoryCount {
+  color: var(--text-oninactive);
+  font-size: var(--font-size-12);
+}
+
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--spacing-24);
+}
+
+.vendors {
+  overflow: hidden;
+  padding: var(--spacing-24) 0;
+}
+
+.vendorTrack {
+  display: flex;
+  width: max-content;
+  gap: var(--spacing-24);
+  animation: vendor-scroll 24s linear infinite;
+}
+
+.vendors:hover .vendorTrack {
+  animation-play-state: paused;
+}
+
+@keyframes vendor-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.vendorItem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 180px;
+  height: 100px;
+  padding: var(--spacing-16);
+  background-color: var(--background);
+}
+
+.vendorLogo {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}

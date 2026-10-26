@@ -1,0 +1,15 @@
+ALTER TABLE `products`
+  MODIFY COLUMN `id` bigint NOT NULL AUTO_INCREMENT,
+  MODIFY COLUMN `quantity` int NOT NULL,
+  DROP COLUMN `image_url`,
+  ADD COLUMN `old_price` decimal(65,2) NULL AFTER `price`,
+  ADD COLUMN `featured` bit(1) NOT NULL DEFAULT b'0',
+  ADD COLUMN `created_at` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  ADD COLUMN `color` varchar(50) NULL,
+  ADD COLUMN `size` varchar(20) NULL,
+  ADD COLUMN `popularity` int NOT NULL DEFAULT 0,
+  ADD COLUMN `rating` decimal(3,2) NULL,
+  ADD COLUMN `review_count` int NOT NULL DEFAULT 0,
+  ADD COLUMN `image` longblob NULL,
+  ADD COLUMN `image_content_type` varchar(50) NULL,
+  ADD COLUMN `image_size` int NULL;
