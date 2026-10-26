@@ -10,20 +10,22 @@ This is a course-module workspace ("Claude Code with Spring Boot and React"), no
 geek-shopping-api/       Spring Boot backend
 geek-shopping-app/       Next.js frontend that consumes it
 MultiShop/                third-party HTML/CSS/JS template — the literal visual reference the frontend was ported from
-erudio-spring-boot-core/  source of the "erudio-spring-boot" Claude Code plugin (backend skills)
-erudio-frontend-core/     source of the "erudio-frontend" Claude Code plugin (frontend skills)
-install-plugin.sh         extracts a course plugin .zip and registers+installs+enables it in Claude Code
+erudio-spring-boot-premium/  source of the "erudio-spring-boot" Claude Code plugin (backend skills)
+erudio-frontend-premium/     source of the "erudio-frontend" Claude Code plugin (frontend skills)
+erudio-cicd-core/         source of the "erudio-cicd" plugin (CI/CD pipeline skills)
+erudio-devops/            source of the "erudio-devops" plugin (Docker/Compose/Kubernetes skills)
+erudio-git/               source of the "erudio-git" plugin (commit-message skill)
 .claude/settings.json     which plugins are enabled for this project
 ```
 
 ## The two Claude Code plugins active in this workspace
 
-`.claude/settings.json` enables `erudio-spring-boot@erudio-spring-boot-marketplace` and `erudio-frontend@erudio-frontend-marketplace` at project scope. Their source lives in `erudio-spring-boot-core/` and `erudio-frontend-core/` (each a `.claude-plugin/` marketplace root + `plugins/<name>/skills/*`) — these are what a session in this workspace actually loads as skills, and they encode the conventions the two apps below were built to follow:
+`.claude/settings.json` enables `erudio-spring-boot`, `erudio-frontend`, `erudio-cicd`, `erudio-devops` and `erudio-git` (each `@<name>-marketplace`) at project scope; their marketplaces are registered in the user's `~/.claude/settings.json` (`extraKnownMarketplaces`) as folder sources pointing at the directories above. The last three have no skills referenced below. Their source lives in `erudio-spring-boot-premium/` and `erudio-frontend-premium/` (each a `.claude-plugin/` marketplace root + `plugins/<name>/skills/*`) — these are what a session in this workspace actually loads as skills, and they encode the conventions the two apps below were built to follow:
 
-- **`erudio-spring-boot` skills** (`erudio-spring-boot-core/plugins/erudio-spring-boot/skills/`) govern all Java work in `geek-shopping-api`: `code-organization` (flat-by-layer packages under `br.com.erudio`, the `*ControllerDocs` interface pattern), `code-style` (no Lombok — ever; explicit constructors and `equals()`/`hashCode()` via getters; specific `var`/guard-clause/annotation formatting), `exception-handling` (`ExceptionResponse` record, `@ResponseStatus` domain exceptions, one `@ExceptionHandler` per exception), `flyway-migrations` (`V{N}__{Description}.sql` naming, MySQL DDL/DML type conventions), `maven-config`, `spring-data-jpa` (entities, repositories, DTO + DozerMapper conversion, HATEOAS links added in the service layer), `swagger` (`OpenApiConfig`, springdoc YAML, the `*ControllerDocs` pattern), `web-config` (CORS + content negotiation, the three media types every endpoint declares).
-- **`erudio-frontend` skills** (`erudio-frontend-core/plugins/erudio-frontend/skills/`) are `scaffold` (generates a new Next.js App Router project's architecture — stack, folder structure, component/state/data patterns — with a neutral, unbranded design system) and `visual-identity` (applies a real visual identity afterward, either by porting a real prototype/template screen-by-screen ("Port mode") or generating one from two brand colors ("Generic mode")). `geek-shopping-app` was built with `scaffold` and then branded with `visual-identity` in Port mode against `MultiShop/`.
+- **`erudio-spring-boot` skills** (`erudio-spring-boot-premium/plugins/erudio-spring-boot/skills/`) govern all Java work in `geek-shopping-api`: `code-organization` (flat-by-layer packages under `br.com.erudio`, the `*ControllerDocs` interface pattern), `code-style` (no Lombok — ever; explicit constructors and `equals()`/`hashCode()` via getters; specific `var`/guard-clause/annotation formatting), `exception-handling` (`ExceptionResponse` record, `@ResponseStatus` domain exceptions, one `@ExceptionHandler` per exception), `flyway-migrations` (`V{N}__{Description}.sql` naming, MySQL DDL/DML type conventions), `maven-config`, `spring-data-jpa` (entities, repositories, DTO + DozerMapper conversion, HATEOAS links added in the service layer), `swagger` (`OpenApiConfig`, springdoc YAML, the `*ControllerDocs` pattern), `web-config` (CORS + content negotiation, the three media types every endpoint declares).
+- **`erudio-frontend` skills** (`erudio-frontend-premium/plugins/erudio-frontend/skills/`) are `scaffold` (generates a new Next.js App Router project's architecture — stack, folder structure, component/state/data patterns — with a neutral, unbranded design system) and `visual-identity` (applies a real visual identity afterward, either by porting a real prototype/template screen-by-screen ("Port mode") or generating one from two brand colors ("Generic mode")). `geek-shopping-app` was built with `scaffold` and then branded with `visual-identity` in Port mode against `MultiShop/`.
 
-To install one of the course's other plugin `.zip`s the same way, use `./install-plugin.sh <path-to-zip> [--scope user|project|local]` — it discovers the plugin/marketplace name from the zip itself, and deliberately keeps the extracted folder afterward (Claude Code re-reads it later; it is not a one-time copy).
+To add another plugin, register its folder as a marketplace (`claude plugin marketplace add <folder>`) and then `claude plugin install <plugin>@<marketplace> --scope project`.
 
 ## geek-shopping-api (backend)
 

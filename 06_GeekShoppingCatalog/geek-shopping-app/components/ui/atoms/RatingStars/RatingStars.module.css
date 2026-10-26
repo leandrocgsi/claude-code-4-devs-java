@@ -1,0 +1,16 @@
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--brand-primary);
+  font-size: var(--font-size-12);
+}
+
+.starEmpty {
+  color: var(--outline);
+}
+
+.reviewCount {
+  margin-left: var(--spacing-4);
+  color: var(--text-oninactive);
+}

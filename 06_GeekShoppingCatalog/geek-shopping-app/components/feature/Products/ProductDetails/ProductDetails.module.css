@@ -41,10 +41,16 @@
   justify-content: space-between;
 }
 
-.price {
-  font-size: var(--font-size-24);
-  font-weight: var(--font-weight-bold);
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-16);
+}
+
+.detailsLink {
   color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+  text-decoration: underline;
 }
 
 .inStock {

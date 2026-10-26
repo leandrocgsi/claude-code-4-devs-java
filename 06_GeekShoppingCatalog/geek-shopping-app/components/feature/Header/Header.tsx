@@ -1,14 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { FormEvent, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { FaAngleDown, FaBars, FaHeart, FaSearch, FaShoppingCart } from 'react-icons/fa';
 import Input from '@/components/ui/atoms/Input';
-import { useProductFilters } from '@/hooks/useProductFilters/useProductFilters';
+import { useCategories } from '@/hooks/useCategories/useCategories';
 import { useWishlist } from '@/hooks/useWishlist/useWishlist';
-import { useCart } from '@/hooks/useCart/useCart';
-import { NAV_CATEGORY_LINKS } from '@/app/core/mocks/categories';
+import { useCartCount } from '@/hooks/useCartCount/useCartCount';
 import styles from './Header.module.css';
 
 const NAV_LINKS = [
@@ -17,6 +16,7 @@ const NAV_LINKS = [
   { href: '/cart', label: 'Shop Cart' },
   { href: '/checkout', label: 'Checkout' },
   { href: '/contact', label: 'Contact' },
+  { href: '/admin/products', label: 'Admin' },
 ];
 
 const INFO_LINKS = ['About', 'Contact', 'Help', 'FAQs'];
@@ -26,11 +26,19 @@ const CURRENCY_OPTIONS = ['EUR', 'GBP', 'CAD'];
 const LANGUAGE_OPTIONS = ['FR', 'AR', 'RU'];
 
 export default function Header() {
-  const { search, setSearch } = useProductFilters();
+  const [searchText, setSearchText] = useState('');
   const { count: wishlistCount } = useWishlist();
-  const { itemCount } = useCart();
+  const itemCount = useCartCount();
+  const { data: categories } = useCategories();
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const term = searchText.trim();
+    router.push(term ? `/products?q=${encodeURIComponent(term)}` : '/products');
+  };
 
   return (
     <header>
@@ -95,15 +103,15 @@ export default function Header() {
           <span className={styles.logoPrimary}>Shopping</span>
         </Link>
 
-        <div className={styles.search}>
+        <form className={styles.search} onSubmit={submitSearch} role="search">
           <Input
             id="header-search"
             placeholder="Search for products"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
           />
           <FaSearch className={styles.searchIcon} aria-hidden="true" />
-        </div>
+        </form>
 
         <div className={styles.customerService}>
           <p className={styles.customerServiceLabel}>Customer Service</p>
@@ -120,14 +128,14 @@ export default function Header() {
           </button>
           {categoriesOpen ? (
             <div className={styles.categoriesPanel}>
-              {NAV_CATEGORY_LINKS.map((category) => (
+              {categories?.map((category) => (
                 <Link
-                  key={category}
-                  href="/products"
+                  key={category.name}
+                  href={`/products?category=${encodeURIComponent(category.name)}`}
                   className={styles.categoryItem}
                   onClick={() => setCategoriesOpen(false)}
                 >
-                  {category}
+                  {category.name}
                 </Link>
               ))}
             </div>

@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.test.{ts,tsx}'],
     css: true,
+    env: { NEXT_PUBLIC_API_URL: 'http://api.test' },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
@@ -18,8 +19,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.module.css',
         '**/node_modules/**',
-        '**/app/core/api/**',
-        '**/app/store/**',
+        'test/**',
         '**/index.ts',
         '**/*.config.{js,ts,mjs}',
         '**/public/**',

@@ -1,6 +1,18 @@
 {
   "enabledPlugins": {
+    "erudio@erudio-marketplace": true,
     "erudio-spring-boot@erudio-spring-boot-marketplace": true,
-    "erudio-frontend@erudio-frontend-marketplace": true
+    "erudio-frontend@erudio-frontend-marketplace": true,
+    "erudio-cicd@erudio-cicd-marketplace": true,
+    "erudio-devops@erudio-devops-marketplace": true,
+    "erudio-git@erudio-git-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "erudio-marketplace": {
+      "source": {
+        "source": "directory",
+        "path": "./erudio"
+      }
+    }
   }
 }

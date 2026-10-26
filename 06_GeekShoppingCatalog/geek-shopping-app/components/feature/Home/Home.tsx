@@ -3,12 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { FaCheck, FaExchangeAlt, FaPhoneVolume, FaShippingFast } from 'react-icons/fa';
-import { MOCK_PRODUCTS } from '@/app/core/mocks/products';
-import { MOCK_CATEGORY_GRID, countProductsInCategory } from '@/app/core/mocks/categories';
+import { useCategories } from '@/hooks/useCategories/useCategories';
+import { useFeaturedProducts } from '@/hooks/useFeaturedProducts/useFeaturedProducts';
+import { useRecentProducts } from '@/hooks/useRecentProducts/useRecentProducts';
 import { Product } from '@/app/core/models/product';
 import Modal from '@/components/ui/molecules/Modal';
 import Carousel from '@/components/ui/molecules/Carousel';
+import InlineAlert from '@/components/ui/molecules/InlineAlert';
+import EmptyState from '@/components/ui/atoms/EmptyState';
+import ProductImage from '@/components/ui/atoms/ProductImage';
 import SectionTitle from '@/components/ui/atoms/SectionTitle';
+import Spinner from '@/components/ui/atoms/Spinner';
 import ProductCard from '@/components/feature/Products/ProductCard';
 import ProductDetails from '@/components/feature/Products/ProductDetails';
 import styles from './Home.module.css';
@@ -28,10 +33,41 @@ const FEATURES = [
 
 const VENDOR_LOGOS = Array.from({ length: 8 }, (_, index) => `/assets/multishop/vendor-${index + 1}.jpg`);
 
+const HOME_SECTION_SIZE = 8;
+
+interface ProductsSectionProps {
+  title: string;
+  products?: Product[];
+  isLoading: boolean;
+  isError: boolean;
+  onQuickView: (product: Product) => void;
+}
+
+function ProductsSection({ title, products, isLoading, isError, onQuickView }: ProductsSectionProps) {
+  return (
+    <section>
+      <SectionTitle as="h2" size="lg">
+        {title}
+      </SectionTitle>
+      {isLoading ? <Spinner label={`Loading ${title.toLowerCase()}`} /> : null}
+      {isError ? <InlineAlert tone="error">The products could not be loaded.</InlineAlert> : null}
+      {!isLoading && !isError && products?.length === 0 ? <EmptyState title="No products yet" /> : null}
+      {products && products.length > 0 ? (
+        <div className={styles.productGrid}>
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} onQuickView={onQuickView} />
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const featured = MOCK_PRODUCTS.slice(0, 8);
-  const recent = MOCK_PRODUCTS.slice(0, 8);
+  const categories = useCategories();
+  const featured = useFeaturedProducts({ page: 0, size: HOME_SECTION_SIZE });
+  const recent = useRecentProducts({ page: 0, size: HOME_SECTION_SIZE });
 
   return (
     <div className={styles.wrapper}>
@@ -91,31 +127,37 @@ export default function Home() {
         <SectionTitle as="h2" size="lg">
           Categories
         </SectionTitle>
-        <div className={styles.categoryGrid}>
-          {MOCK_CATEGORY_GRID.map((category) => (
-            <Link key={category.id} href="/products" className={styles.categoryCard}>
-              <div className={styles.categoryImageWrap}>
-                <img src={category.imageUrl} alt={category.name} className={styles.categoryImage} />
-              </div>
-              <div>
-                <p className={styles.categoryName}>{category.name}</p>
-                <span className={styles.categoryCount}>{countProductsInCategory(category.name)} Products</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {categories.isLoading ? <Spinner label="Loading categories" /> : null}
+        {categories.isError ? <InlineAlert tone="error">The categories could not be loaded.</InlineAlert> : null}
+        {categories.data && categories.data.length === 0 ? <EmptyState title="No categories yet" /> : null}
+        {categories.data && categories.data.length > 0 ? (
+          <div className={styles.categoryGrid}>
+            {categories.data.map((category) => (
+              <Link
+                key={category.name}
+                href={`/products?category=${encodeURIComponent(category.name)}`}
+                className={styles.categoryCard}
+              >
+                <div className={styles.categoryImageWrap}>
+                  <ProductImage src={category.imageUrl} alt={category.name} className={styles.categoryImage} />
+                </div>
+                <div>
+                  <p className={styles.categoryName}>{category.name}</p>
+                  <span className={styles.categoryCount}>{category.productCount} Products</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : null}
       </section>
 
-      <section>
-        <SectionTitle as="h2" size="lg">
-          Featured Products
-        </SectionTitle>
-        <div className={styles.productGrid}>
-          {featured.map((product) => (
-            <ProductCard key={product.id} product={product} onQuickView={setSelectedProduct} />
-          ))}
-        </div>
-      </section>
+      <ProductsSection
+        title="Featured Products"
+        products={featured.data?.content}
+        isLoading={featured.isLoading}
+        isError={featured.isError}
+        onQuickView={setSelectedProduct}
+      />
 
       <section className={styles.midOffers}>
         <div className={styles.midOffer}>
@@ -140,16 +182,13 @@ export default function Home() {
         </div>
       </section>
 
-      <section>
-        <SectionTitle as="h2" size="lg">
-          Recent Products
-        </SectionTitle>
-        <div className={styles.productGrid}>
-          {recent.map((product) => (
-            <ProductCard key={product.id} product={product} onQuickView={setSelectedProduct} />
-          ))}
-        </div>
-      </section>
+      <ProductsSection
+        title="Recent Products"
+        products={recent.data?.content}
+        isLoading={recent.isLoading}
+        isError={recent.isError}
+        onQuickView={setSelectedProduct}
+      />
 
       <section className={styles.vendors}>
         <div className={styles.vendorTrack}>

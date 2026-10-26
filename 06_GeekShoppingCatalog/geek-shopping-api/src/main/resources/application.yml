@@ -9,6 +9,13 @@ spring:
     url: jdbc:mysql://localhost:3306/geek-shopping?useTimezone=true&serverTimezone=UTC
     username: root
     password: admin123
+  flyway:
+    baseline-on-migrate: true
+    baseline-version: 2
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
   jpa:
     hibernate:
       ddl-auto: none
@@ -16,6 +23,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
+        check_nullability: true
         jdbc.batch_size: 15
         order_inserts: true
         order_updates: true

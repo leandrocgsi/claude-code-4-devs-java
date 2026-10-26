@@ -1,0 +1,8 @@
+{
+  "name": "erudio",
+  "description": "Story workflow for the GeekShopping project. /erudio:implement-story plans a story (the 5 km zoom on a feature) into docs/plans/stories/<slug>.md; one skill per stage (backend, frontend, unit/UI/integration tests, code/performance/security review, completion) updates only its own row of the story table. Reviewer agents and a tech-debt reviewer that runs once, between the security review and the closing. Built on the erudio-spring-boot and erudio-frontend skills and on the specs in docs/specs.",
+  "version": "1.0.0",
+  "author": {
+    "name": "leandrocgsi"
+  }
+}

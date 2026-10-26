@@ -32,31 +32,34 @@ This is the Next.js (App Router) storefront frontend for "Geek Shopping", consum
 
 ### Stack
 
-Next.js App Router + TypeScript (strict) + Tailwind v4 (present but design tokens/CSS Modules do the real styling work) + TanStack Query (server/mock data) + Zustand (client state) + Axios (`app/core/api/httpClient.ts`, one file per REST resource) + `react-icons/fa` (Font Awesome 5 — matches the reference template's own icon family; don't mix in a second icon library) + Vitest/Testing Library.
+Next.js App Router + TypeScript (strict) + Tailwind v4 (present but design tokens/CSS Modules do the real styling work) + TanStack Query (server data) + Zustand (client state) + Axios (`app/core/api/httpClient.ts`, one file per REST resource) + `react-icons/fa` (Font Awesome 5 — matches the reference template's own icon family; don't mix in a second icon library) + Vitest/Testing Library.
 
 ### Folder structure and the dependency direction
 
 ```
 app/(dashboard)/<route>/page.tsx  — thin, only renders a components/feature/<Name>
 app/(dashboard)/layout.tsx        — Header + Footer + BackToTop shell around every route
-app/core/{api,models,mocks,utils}
+app/core/{api,models,utils}
 app/store/modules/<scope>/useXStore.ts   — Zustand, one file per store
 components/ui/{atoms,molecules}   — generic, reusable, on-brand primitives
 components/feature/<Name>/        — one screen or shell piece: <Name>.tsx + .module.css + index.ts
 hooks/use<Thing>/use<Thing>.ts    — TanStack Query wrapper, or a Zustand store facade
 styles/tokens/*.css               — design tokens, one file per category, imported via tokens/index.css
 ```
-Dependency direction is one-way: `page.tsx` → `(dashboard)/layout.tsx` → `feature/Header`/`feature/Footer`; a page's feature component → `ui/atoms`/`ui/molecules` + `hooks/*`; hooks → `core/api`/`core/models`/`core/mocks` + `store/modules/*`. Stores are never read directly by components — always through a selector-based facade hook (e.g. `hooks/useCart`, `hooks/useWishlist`) so a component only re-renders on the slice it actually reads.
+Dependency direction is one-way: `page.tsx` → `(dashboard)/layout.tsx` → `feature/Header`/`feature/Footer`; a page's feature component → `ui/atoms`/`ui/molecules` + `hooks/*`; hooks → `core/api`/`core/models`/`core/utils` + `store/modules/*`. Stores are never read directly by components — always through a selector-based facade hook (e.g. `hooks/useCart`, `hooks/useWishlist`) so a component only re-renders on the slice it actually reads.
 
 Routes live under the `(dashboard)` route group, which adds no URL segment — `app/(dashboard)/page.tsx` **is** `/`. Next.js reserves `page.tsx`/`layout.tsx` as route files anywhere under `app/`, including inside `core/`; a non-route file must never be named `page.ts(x)` there (it previously broke the build — see `app/core/models/pagination.ts`, deliberately not `page.ts`).
 
-### Mock-data mode (temporary, single flag)
+### Data source: the real API (the mock catalog is gone)
 
-```ts
-// app/core/api/products.ts
-export const USE_MOCK_PRODUCT_DATA = true;
-```
-While `true`, `productsService.list()` serves `app/core/mocks/products.ts` in-memory instead of calling the live API, because the backend's `imageUrl` values are currently broken. Every downstream hook/component is unaware of this — it just consumes `PageResponse<Product>` either way. Flip the flag (and delete the mock branch) once the backend is fixed. `app/core/mocks/categories.ts` derives the Home page's category grid from that same mock catalog with real counts — do not swap the grid's React `key` back to `category.name`; names repeat by design (see file) and only `category.id` is unique.
+Everything comes from `geek-shopping-api` through `NEXT_PUBLIC_API_URL` (axios talks to it directly; CORS allows `http://localhost:3000`). There is no mock mode and no `app/core/mocks`.
+
+- The list endpoints answer in HAL; `app/core/api/hal.ts` turns them into the internal `PageResponse<T>`, so components never see `_embedded`/`_links`.
+- `ApiError` (`app/core/api/httpClient.ts`) normalizes both error shapes: `ExceptionResponse` (`message`) and `ProblemDetail` (`detail` and the per-field `errors{}`, exposed as `ApiError.fields`).
+- A product's `imageUrl` is a path relative to the API; the service makes it absolute with `toApiUrl`. Always render product/category images through `components/ui/atoms/ProductImage`, which falls back to `/assets/no-image.jpg`.
+- Create/update send `multipart/form-data` with the part `product` as a JSON `Blob` (`application/json`) and an optional `image` file; sending the product as plain text makes the API answer 415.
+- The shop filter for the product size is named `productSize` (the API's `size` is the page size). Shop filters, sort and page live in the page URL (`hooks/useProductSearchParams`).
+- The cart is still local (Zustand, in memory) and resolves each product through `GET /api/product/v1/{id}` until the server-side cart exists.
 
 ### Design tokens and the page-canvas convention
 

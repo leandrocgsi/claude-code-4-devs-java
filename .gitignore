@@ -1,5 +1,8 @@
 *.class
 
+**/erudio-*
+**/skills/
+!**/.claude/skills/
 
 # Node / npm
 **/node_modules

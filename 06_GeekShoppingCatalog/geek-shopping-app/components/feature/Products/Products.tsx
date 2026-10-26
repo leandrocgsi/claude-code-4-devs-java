@@ -1,75 +1,80 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { FaBars, FaThLarge } from 'react-icons/fa';
 import { useProducts } from '@/hooks/useProducts/useProducts';
-import { useProductFilters } from '@/hooks/useProductFilters/useProductFilters';
-import { Product } from '@/app/core/models/product';
+import { useFacets } from '@/hooks/useFacets/useFacets';
+import { PAGE_SIZE_OPTIONS, useProductSearchParams } from '@/hooks/useProductSearchParams/useProductSearchParams';
+import { FacetsQueryParams } from '@/app/core/api/products';
+import { Product, ProductSortField } from '@/app/core/models/product';
 import { SortDirection } from '@/app/core/models/pagination';
-import { PRICE_BUCKETS } from '@/app/core/mocks/products';
+import { formatPrice } from '@/app/core/utils/currency';
 import Select from '@/components/ui/atoms/Select';
 import Button from '@/components/ui/atoms/Button';
+import EmptyState from '@/components/ui/atoms/EmptyState';
+import ProductImage from '@/components/ui/atoms/ProductImage';
+import Spinner from '@/components/ui/atoms/Spinner';
+import InlineAlert from '@/components/ui/molecules/InlineAlert';
 import Modal from '@/components/ui/molecules/Modal';
+import Pagination from '@/components/ui/molecules/Pagination';
 import DataTable, { DataTableColumn } from '@/components/ui/molecules/DataTable';
-import { formatPrice } from '@/app/core/utils/currency';
 import ProductCard from './ProductCard';
 import ProductDetails from './ProductDetails';
 import ShopSidebar from './ShopSidebar';
 import styles from './Products.module.css';
 
 const SORT_OPTIONS = [
-  { value: 'asc', label: 'Name (A-Z)' },
-  { value: 'desc', label: 'Name (Z-A)' },
+  { value: 'createdAt:desc', label: 'Latest' },
+  { value: 'popularity:desc', label: 'Popularity' },
+  { value: 'rating:desc', label: 'Best Rating' },
+  { value: 'name:asc', label: 'Name (A-Z)' },
+  { value: 'name:desc', label: 'Name (Z-A)' },
+  { value: 'price:asc', label: 'Price: low to high' },
+  { value: 'price:desc', label: 'Price: high to low' },
 ];
 
-const PAGE_SIZE_OPTIONS = [
-  { value: '10', label: 'Show 10' },
-  { value: '20', label: 'Show 20' },
-  { value: '30', label: 'Show 30' },
-];
-
-function getPageWindow(current: number, total: number, windowSize = 5): number[] {
-  const half = Math.floor(windowSize / 2);
-  let start = Math.max(0, current - half);
-  const end = Math.min(total, start + windowSize);
-  start = Math.max(0, end - windowSize);
-  return Array.from({ length: end - start }, (_, index) => start + index);
-}
+const PAGE_SIZE_SELECT_OPTIONS = PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `Show ${size}` }));
 
 export default function Products() {
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(12);
-  const [direction, setDirection] = useState<SortDirection>('asc');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [priceBucketId, setPriceBucketId] = useState('all');
-  const [color, setColor] = useState('all');
-  const [productSize, setProductSize] = useState('all');
 
-  const { search } = useProductFilters();
-  const { data, isLoading, isError, error } = useProducts({ page, size, direction });
+  const { search, update } = useProductSearchParams();
 
-  const filteredProducts = useMemo(() => {
-    if (!data) return [];
-    const term = search.trim().toLowerCase();
-    const bucket = PRICE_BUCKETS.find((item) => item.id === priceBucketId);
+  const filters: FacetsQueryParams = {
+    q: search.q || undefined,
+    category: search.category || undefined,
+    minPrice: search.minPrice,
+    maxPrice: search.maxPrice,
+    colors: search.color ? [search.color] : undefined,
+    productSizes: search.productSize ? [search.productSize] : undefined,
+  };
 
-    return data.content.filter((product) => {
-      const matchesSearch =
-        !term || product.name.toLowerCase().includes(term) || product.category.toLowerCase().includes(term);
-      const matchesPrice = !bucket || bucket.id === 'all' || (product.price >= bucket.min && product.price < bucket.max);
-      const matchesColor = color === 'all' || product.color === color;
-      const matchesSize = productSize === 'all' || product.size === productSize;
-      return matchesSearch && matchesPrice && matchesColor && matchesSize;
+  const { data, isLoading, isError, error, refetch } = useProducts({
+    page: search.page,
+    size: search.size,
+    direction: search.direction,
+    sortBy: search.sortBy,
+    ...filters,
+  });
+  const { data: facets } = useFacets(filters);
+
+  const clearFilters = () =>
+    update({
+      q: '',
+      category: '',
+      color: '',
+      productSize: '',
+      minPrice: undefined,
+      maxPrice: undefined,
     });
-  }, [data, search, priceBucketId, color, productSize]);
 
   const columns: DataTableColumn<Product>[] = [
     {
       key: 'image',
       header: '',
       width: '64px',
-      render: (product) => <img src={product.imageUrl} alt={product.name} className={styles.thumbnail} />,
+      render: (product) => <ProductImage src={product.imageUrl} alt={product.name} className={styles.thumbnail} />,
     },
     { key: 'name', header: 'Name', render: (product) => product.name },
     { key: 'category', header: 'Category', render: (product) => product.category },
@@ -104,21 +109,15 @@ export default function Products() {
 
       <div className={styles.layout}>
         <ShopSidebar
-          priceBucketId={priceBucketId}
-          onPriceBucketChange={(id) => {
-            setPriceBucketId(id);
-            setPage(0);
-          }}
-          color={color}
-          onColorChange={(value) => {
-            setColor(value);
-            setPage(0);
-          }}
-          size={productSize}
-          onSizeChange={(value) => {
-            setProductSize(value);
-            setPage(0);
-          }}
+          facets={facets}
+          price={{ minPrice: search.minPrice, maxPrice: search.maxPrice }}
+          onPriceChange={(price) => update(price)}
+          category={search.category}
+          onCategoryChange={(category) => update({ category })}
+          color={search.color}
+          onColorChange={(color) => update({ color })}
+          size={search.productSize}
+          onSizeChange={(productSize) => update({ productSize })}
         />
 
         <div className={styles.main}>
@@ -146,82 +145,68 @@ export default function Products() {
               <Select
                 id="product-sort"
                 options={SORT_OPTIONS}
-                value={direction}
+                value={`${search.sortBy}:${search.direction}`}
                 onChange={(event) => {
-                  setDirection(event.target.value as SortDirection);
-                  setPage(0);
+                  const [sortBy, direction] = event.target.value.split(':');
+                  update({ sortBy: sortBy as ProductSortField, direction: direction as SortDirection });
                 }}
               />
               <Select
                 id="product-size"
-                options={PAGE_SIZE_OPTIONS}
-                value={String(size)}
-                onChange={(event) => {
-                  setSize(Number(event.target.value));
-                  setPage(0);
-                }}
+                options={PAGE_SIZE_SELECT_OPTIONS}
+                value={String(search.size)}
+                onChange={(event) => update({ size: Number(event.target.value) })}
               />
             </div>
           </div>
 
-          {isLoading ? <p className={styles.status}>Loading products…</p> : null}
-
-          {isError ? (
-            <p className={styles.statusError}>{error instanceof Error ? error.message : 'Unexpected error.'}</p>
+          {search.q ? (
+            <p className={styles.searchInfo}>
+              Results for “{search.q}”
+              <button type="button" className={styles.clearSearch} onClick={() => update({ q: '' })}>
+                Clear search
+              </button>
+            </p>
           ) : null}
 
-          {!isLoading && !isError ? (
+          {isLoading ? <Spinner label="Loading products" /> : null}
+
+          {isError ? (
+            <div className={styles.errorBox}>
+              <InlineAlert tone="error">
+                {error instanceof Error ? error.message : 'Unexpected error.'}
+              </InlineAlert>
+              <Button variant="secondary" onClick={() => refetch()}>
+                Try again
+              </Button>
+            </div>
+          ) : null}
+
+          {data && !isError ? (
             <>
-              {view === 'grid' ? (
-                filteredProducts.length === 0 ? (
-                  <p className={styles.status}>No products match your filters.</p>
-                ) : (
-                  <div className={styles.grid}>
-                    {filteredProducts.map((product) => (
-                      <ProductCard key={product.id} product={product} onQuickView={setSelectedProduct} />
-                    ))}
-                  </div>
-                )
+              {data.content.length === 0 ? (
+                <EmptyState title="No products found" description="Try changing or clearing the filters.">
+                  <Button variant="secondary" onClick={clearFilters}>
+                    Clear filters
+                  </Button>
+                </EmptyState>
+              ) : view === 'grid' ? (
+                <div className={styles.grid}>
+                  {data.content.map((product) => (
+                    <ProductCard key={product.id} product={product} onQuickView={setSelectedProduct} />
+                  ))}
+                </div>
               ) : (
                 <DataTable
                   columns={columns}
-                  data={filteredProducts}
+                  data={data.content}
                   getRowId={(product) => product.id}
                   onRowClick={(product) => setSelectedProduct(product)}
-                  emptyMessage="No products match your filters."
+                  emptyMessage="No products found."
                 />
               )}
 
-              {data && data.totalPages > 1 ? (
-                <nav className={styles.pagination}>
-                  <button
-                    type="button"
-                    className={styles.pageLink}
-                    disabled={data.first}
-                    onClick={() => setPage((current) => current - 1)}
-                  >
-                    Previous
-                  </button>
-                  {getPageWindow(data.number, data.totalPages).map((pageNumber) => (
-                    <button
-                      key={pageNumber}
-                      type="button"
-                      className={pageNumber === data.number ? styles.pageLinkActive : styles.pageLink}
-                      onClick={() => setPage(pageNumber)}
-                    >
-                      {pageNumber + 1}
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    className={styles.pageLink}
-                    disabled={data.last}
-                    onClick={() => setPage((current) => current + 1)}
-                  >
-                    Next
-                  </button>
-                </nav>
-              ) : null}
+              <Pagination page={data.number} totalPages={data.totalPages} onPageChange={(page) => update({ page })} />
             </>
           ) : null}
         </div>

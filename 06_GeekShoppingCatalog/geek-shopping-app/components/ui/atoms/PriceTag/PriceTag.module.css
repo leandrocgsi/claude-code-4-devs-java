@@ -1,0 +1,25 @@
+.row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-8);
+}
+
+.price,
+.priceLarge {
+  font-weight: var(--font-weight-bold);
+  color: var(--text-onsurface);
+}
+
+.price {
+  font-size: var(--font-size-16);
+}
+
+.priceLarge {
+  font-size: var(--font-size-24);
+}
+
+.oldPrice {
+  font-size: var(--font-size-14);
+  color: var(--text-oninactive);
+  text-decoration: line-through;
+}

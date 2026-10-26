@@ -1,0 +1,14 @@
+{
+  "name": "erudio-marketplace",
+  "description": "Story workflow for the GeekShopping project: skills and agents that plan, implement, test, review and close a story.",
+  "owner": {
+    "name": "leandrocgsi"
+  },
+  "plugins": [
+    {
+      "name": "erudio",
+      "source": "./plugins/erudio",
+      "description": "Story workflow for GeekShopping: plan a story, implement it stage by stage, review it with agents and close it."
+    }
+  ]
+}

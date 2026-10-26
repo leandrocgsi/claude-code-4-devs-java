@@ -1,5 +1,9 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import axios from 'axios';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+import { server } from './test/msw/server';
+
+axios.defaults.adapter = 'fetch';
 
 if (!window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
@@ -16,3 +20,9 @@ if (!window.matchMedia) {
     }),
   });
 }
+
+beforeAll(() => server.listen({ onUnhandledFrame: 'error' }));
+
+afterEach(() => server.resetHandlers());
+
+afterAll(() => server.close());

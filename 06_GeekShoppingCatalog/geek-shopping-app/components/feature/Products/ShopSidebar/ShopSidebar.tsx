@@ -1,33 +1,48 @@
-import {
-  PRICE_BUCKETS,
-  countProductsInPriceBucket,
-  countProductsWithColor,
-  countProductsWithSize,
-  getDistinctColors,
-  getDistinctSizes,
-} from '@/app/core/mocks/products';
+import { Facets } from '@/app/core/models/facets';
+import { formatPrice } from '@/app/core/utils/currency';
 import SectionTitle from '@/components/ui/atoms/SectionTitle';
 import styles from './ShopSidebar.module.css';
 
+export interface PriceSelection {
+  minPrice?: number;
+  maxPrice?: number;
+}
+
 interface ShopSidebarProps {
-  priceBucketId: string;
-  onPriceBucketChange: (id: string) => void;
+  facets?: Facets;
+  price: PriceSelection;
+  onPriceChange: (price: PriceSelection) => void;
+  category: string;
+  onCategoryChange: (category: string) => void;
   color: string;
   onColorChange: (color: string) => void;
   size: string;
   onSizeChange: (size: string) => void;
 }
 
+const PRICE_CENT = 0.01;
+
+function upperBound(max: number | null): number | undefined {
+  return max === null ? undefined : Number((max - PRICE_CENT).toFixed(2));
+}
+
+function priceLabel(min: number, max: number | null): string {
+  return max === null ? `${formatPrice(min)}+` : `${formatPrice(min)} - ${formatPrice(max)}`;
+}
+
 export default function ShopSidebar({
-  priceBucketId,
-  onPriceBucketChange,
+  facets,
+  price,
+  onPriceChange,
+  category,
+  onCategoryChange,
   color,
   onColorChange,
   size,
   onSizeChange,
 }: ShopSidebarProps) {
-  const colors = getDistinctColors();
-  const sizes = getDistinctSizes();
+  const totalProducts = facets?.priceRanges.reduce((sum, range) => sum + range.count, 0) ?? 0;
+  const allPrices = price.minPrice === undefined && price.maxPrice === undefined;
 
   return (
     <aside className={styles.sidebar}>
@@ -36,18 +51,58 @@ export default function ShopSidebar({
           Filter by price
         </SectionTitle>
         <div className={styles.groupBody}>
-          {PRICE_BUCKETS.map((bucket) => (
-            <label key={bucket.id} className={styles.option}>
+          <label className={styles.option}>
+            <span className={styles.optionLabel}>
+              <input type="radio" name="price-range" checked={allPrices} onChange={() => onPriceChange({ minPrice: undefined, maxPrice: undefined })}
+              />
+              All Price
+            </span>
+            <span className={styles.count}>{totalProducts}</span>
+          </label>
+          {facets?.priceRanges.map((range) => {
+            const maxPrice = upperBound(range.max);
+            const selected = price.minPrice === range.min && price.maxPrice === maxPrice;
+            return (
+              <label key={range.min} className={styles.option}>
+                <span className={styles.optionLabel}>
+                  <input
+                    type="radio"
+                    name="price-range"
+                    checked={selected}
+                    onChange={() => onPriceChange({ minPrice: range.min, maxPrice })}
+                  />
+                  {priceLabel(range.min, range.max)}
+                </span>
+                <span className={styles.count}>{range.count}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={styles.group}>
+        <SectionTitle as="h5" size="sm" className={styles.groupTitle}>
+          Filter by category
+        </SectionTitle>
+        <div className={styles.groupBody}>
+          <label className={styles.option}>
+            <span className={styles.optionLabel}>
+              <input type="radio" name="category" checked={category === ''} onChange={() => onCategoryChange('')} />
+              All Category
+            </span>
+          </label>
+          {facets?.categories.map((item) => (
+            <label key={item.name} className={styles.option}>
               <span className={styles.optionLabel}>
                 <input
                   type="radio"
-                  name="price-bucket"
-                  checked={priceBucketId === bucket.id}
-                  onChange={() => onPriceBucketChange(bucket.id)}
+                  name="category"
+                  checked={category === item.name}
+                  onChange={() => onCategoryChange(item.name)}
                 />
-                {bucket.label}
+                {item.name}
               </span>
-              <span className={styles.count}>{countProductsInPriceBucket(bucket)}</span>
+              <span className={styles.count}>{item.count}</span>
             </label>
           ))}
         </div>
@@ -60,22 +115,17 @@ export default function ShopSidebar({
         <div className={styles.groupBody}>
           <label className={styles.option}>
             <span className={styles.optionLabel}>
-              <input type="radio" name="color" checked={color === 'all'} onChange={() => onColorChange('all')} />
+              <input type="radio" name="color" checked={color === ''} onChange={() => onColorChange('')} />
               All Color
             </span>
           </label>
-          {colors.map((colorOption) => (
-            <label key={colorOption} className={styles.option}>
+          {facets?.colors.map((item) => (
+            <label key={item.name} className={styles.option}>
               <span className={styles.optionLabel}>
-                <input
-                  type="radio"
-                  name="color"
-                  checked={color === colorOption}
-                  onChange={() => onColorChange(colorOption)}
-                />
-                {colorOption}
+                <input type="radio" name="color" checked={color === item.name} onChange={() => onColorChange(item.name)} />
+                {item.name}
               </span>
-              <span className={styles.count}>{countProductsWithColor(colorOption)}</span>
+              <span className={styles.count}>{item.count}</span>
             </label>
           ))}
         </div>
@@ -88,17 +138,17 @@ export default function ShopSidebar({
         <div className={styles.groupBody}>
           <label className={styles.option}>
             <span className={styles.optionLabel}>
-              <input type="radio" name="size" checked={size === 'all'} onChange={() => onSizeChange('all')} />
+              <input type="radio" name="size" checked={size === ''} onChange={() => onSizeChange('')} />
               All Size
             </span>
           </label>
-          {sizes.map((sizeOption) => (
-            <label key={sizeOption} className={styles.option}>
+          {facets?.sizes.map((item) => (
+            <label key={item.name} className={styles.option}>
               <span className={styles.optionLabel}>
-                <input type="radio" name="size" checked={size === sizeOption} onChange={() => onSizeChange(sizeOption)} />
-                {sizeOption}
+                <input type="radio" name="size" checked={size === item.name} onChange={() => onSizeChange(item.name)} />
+                {item.name}
               </span>
-              <span className={styles.count}>{countProductsWithSize(sizeOption)}</span>
+              <span className={styles.count}>{item.count}</span>
             </label>
           ))}
         </div>

@@ -1,0 +1,34 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.pageLink,
+.pageLinkActive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 var(--spacing-12);
+  border: 1px solid var(--outline);
+  background-color: var(--background);
+  color: var(--text-onsurface);
+  font-size: var(--font-size-14);
+  cursor: pointer;
+}
+
+.pageLink:disabled {
+  color: var(--text-oninactive);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pageLinkActive {
+  background-color: var(--brand-primary);
+  border-color: var(--brand-primary);
+  color: var(--on-primary);
+}

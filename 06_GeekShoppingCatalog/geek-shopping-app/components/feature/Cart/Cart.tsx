@@ -7,11 +7,14 @@ import { useCart } from '@/hooks/useCart/useCart';
 import { formatPrice } from '@/app/core/utils/currency';
 import Input from '@/components/ui/atoms/Input';
 import Button from '@/components/ui/atoms/Button';
+import ProductImage from '@/components/ui/atoms/ProductImage';
 import SectionTitle from '@/components/ui/atoms/SectionTitle';
+import Spinner from '@/components/ui/atoms/Spinner';
+import InlineAlert from '@/components/ui/molecules/InlineAlert';
 import styles from './Cart.module.css';
 
 export default function Cart() {
-  const { items, subtotal, shipping, total, setQuantity, removeItem } = useCart();
+  const { items, isLoading, isError, refetch, subtotal, shipping, total, setQuantity, removeItem } = useCart();
   const [coupon, setCoupon] = useState('');
   const [couponMessage, setCouponMessage] = useState('');
 
@@ -30,7 +33,16 @@ export default function Cart() {
         <span className={styles.breadcrumbActive}>Shopping Cart</span>
       </nav>
 
-      {items.length === 0 ? (
+      {isLoading && items.length === 0 ? (
+        <Spinner label="Loading your cart" />
+      ) : isError ? (
+        <div className={styles.empty}>
+          <InlineAlert tone="error">Could not load some products of your cart.</InlineAlert>
+          <Button variant="secondary" onClick={refetch}>
+            Try again
+          </Button>
+        </div>
+      ) : items.length === 0 ? (
         <div className={styles.empty}>
           <p>Your cart is empty.</p>
           <Link href="/products" className={styles.emptyLink}>
@@ -54,7 +66,7 @@ export default function Cart() {
                 {items.map((item) => (
                   <tr key={item.product.id}>
                     <td className={styles.productCell}>
-                      <img src={item.product.imageUrl} alt={item.product.name} className={styles.thumbnail} />
+                      <ProductImage src={item.product.imageUrl} alt={item.product.name} className={styles.thumbnail} />
                       {item.product.name}
                     </td>
                     <td>{formatPrice(item.product.price)}</td>
@@ -73,6 +85,7 @@ export default function Cart() {
                           type="button"
                           className={styles.quantityButton}
                           onClick={() => setQuantity(item.product.id, item.quantity + 1)}
+                          disabled={item.quantity >= item.product.quantity}
                           aria-label="Increase quantity"
                         >
                           <FaPlus />

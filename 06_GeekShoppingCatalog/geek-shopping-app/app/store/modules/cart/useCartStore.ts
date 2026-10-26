@@ -8,10 +8,8 @@ interface CartStore {
   clear: () => void;
 }
 
-const INITIAL_MOCK_QUANTITIES: Record<number, number> = { 1: 1, 6: 2, 9: 1 };
-
 export const useCartStore = create<CartStore>((set) => ({
-  quantities: INITIAL_MOCK_QUANTITIES,
+  quantities: {},
   addItem: (productId, quantity = 1) =>
     set((state) => ({
       quantities: { ...state.quantities, [productId]: (state.quantities[productId] ?? 0) + quantity },

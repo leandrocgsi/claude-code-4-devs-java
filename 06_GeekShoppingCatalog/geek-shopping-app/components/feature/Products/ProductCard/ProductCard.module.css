@@ -114,46 +114,18 @@
 }
 
 .name {
+  display: block;
   margin: 0;
   font-size: var(--font-size-16);
   color: var(--text-onsurface);
+  text-decoration: none;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 100%;
 }
 
-.priceRow {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-8);
-}
-
-.price {
-  font-size: var(--font-size-16);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-onsurface);
-}
-
-.originalPrice {
-  font-size: var(--font-size-14);
-  color: var(--text-oninactive);
-  text-decoration: line-through;
-}
-
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  color: var(--brand-primary);
-  font-size: var(--font-size-12);
-}
-
-.starEmpty {
-  color: var(--outline);
-}
-
-.reviewCount {
-  margin-left: var(--spacing-4);
-  color: var(--text-oninactive);
+.name:hover {
+  color: var(--brand-dark-hover);
+  text-decoration: underline;
 }
