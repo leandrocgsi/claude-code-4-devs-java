@@ -45,6 +45,9 @@ public class CartService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ShippingService shippingService;
+
     @Transactional(readOnly = true)
     public CartDTO find(String token) {
         logger.info("Finding one cart!");
@@ -186,8 +189,10 @@ public class CartService {
             itemCount += item.getQuantity();
         }
         dto.setItemCount(itemCount);
+        var shipping = shippingService.calculate(itemCount);
         dto.setSubtotal(subtotal);
-        dto.setTotal(subtotal);
+        dto.setShipping(shipping);
+        dto.setTotal(subtotal.add(shipping));
         addHateoasLinks(dto);
         return dto;
     }

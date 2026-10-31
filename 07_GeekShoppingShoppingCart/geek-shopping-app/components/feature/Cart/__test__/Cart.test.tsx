@@ -1,7 +1,7 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
-import { CART_URL, buildCartItemResponse } from '@/test/fixtures';
+import { CART_URL, buildCartItemResponse, buildCartResponse } from '@/test/fixtures';
 import { serveCart } from '@/test/msw/serveCart';
 import { renderWithProviders } from '@/test/renderWithProviders';
 import { useCartTokenStore } from '@/app/store/modules/cart/useCartTokenStore';
@@ -51,19 +51,96 @@ describe('Cart', () => {
 
     const summary = screen.getByText('Subtotal').closest('div') as HTMLElement;
     expect(within(summary).getByText(/R\$\s?90,00/)).toBeInTheDocument();
-    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?90,00/);
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?10,00/);
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?100,00/);
     expect(screen.getByRole('link', { name: 'Proceed To Checkout' })).toHaveAttribute('href', '/checkout');
   });
 
-  it('has neither shipping nor coupon', async () => {
+  it('shows the shipping between the subtotal and the total and has no coupon', async () => {
     serveCart([buildCartItemResponse({ id: 1, name: 'Black Mug' })]);
 
     renderWithProviders(<Cart />);
     await screen.findByText('Black Mug');
 
-    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
+    const labels = ['Subtotal', 'Shipping', 'Total'].map((label) => screen.getByText(label, { selector: 'span' }));
+    const rows = labels.map((label) => label.closest('div') as HTMLElement);
+    expect(rows[0].compareDocumentPosition(rows[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(rows[1].compareDocumentPosition(rows[2]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(screen.queryByPlaceholderText('Coupon Code')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Apply Coupon' })).not.toBeInTheDocument();
+  });
+
+  it('shows the shipping and the total of the server even when the total differs from the local sum', async () => {
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json({
+          items: [buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: 1 })],
+          itemCount: 1,
+          subtotal: 25,
+          shipping: 12.34,
+          total: 99.99,
+        }),
+      ),
+    );
+
+    renderWithProviders(<Cart />);
+    await screen.findByText('Black Mug');
+
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?12,34/);
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?99,99/);
+  });
+
+  it('shows the shipping as zero when the server charges none', async () => {
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json(buildCartResponse([buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: 1 })], 0)),
+      ),
+    );
+
+    renderWithProviders(<Cart />);
+    await screen.findByText('Black Mug');
+
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?0,00/);
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?25,00/);
+  });
+
+  it('shows the new shipping and total after the quantity of a line changes', async () => {
+    let shipping = 10;
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json(buildCartResponse([buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: shipping === 10 ? 1 : 2 })], shipping)),
+      ),
+      http.put(`${CART_URL}/items/1`, () => {
+        shipping = 15;
+        return HttpResponse.json(buildCartResponse([buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: 2 })], shipping));
+      }),
+    );
+    renderWithProviders(<Cart />);
+    await screen.findByText('Black Mug');
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?35,00/);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Increase quantity' }));
+
+    await waitFor(() =>
+      expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?65,00/),
+    );
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?15,00/);
+  });
+
+  it('shows no summary and no shipping while loading, when empty and on error', async () => {
+    serveCart();
+    const { unmount } = renderWithProviders(<Cart />);
+    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
+    expect(await screen.findByText('Your cart is empty')).toBeInTheDocument();
+    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cart Summary')).not.toBeInTheDocument();
+    unmount();
+
+    server.use(http.get(CART_URL, () => HttpResponse.json({ message: 'down' }, { status: 500 })));
+    renderWithProviders(<Cart />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Could not load your cart.');
+    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cart Summary')).not.toBeInTheDocument();
   });
 
   it('increases and decreases the quantity of a line through the API', async () => {

@@ -5,6 +5,14 @@ const OTHER_PRODUCT = 'Camiseta';
 const TOKEN_KEY = 'geek-shopping-cart-token';
 const TOKEN_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
+function moneyOf(text: string | null): number {
+  return Number((text ?? '').replace(/[^\d,]/g, '').replace(',', '.'));
+}
+
+function summaryRow(page: Page, label: string) {
+  return page.locator('span').filter({ hasText: new RegExp(`^${label}$`) }).first().locator('xpath=..');
+}
+
 async function addFromProductPage(page: Page, name: string) {
   await page.goto(`/products?q=${encodeURIComponent(name)}`);
   await page.getByRole('link', { name: new RegExp(name) }).first().click();
@@ -101,7 +109,7 @@ test.describe('cart', () => {
     await expect(page.getByRole('link', { name: '1 items in cart' })).toBeVisible();
   });
 
-  test('the cart is empty and the summary has no shipping for a new visitor', async ({ page }) => {
+  test('a new visitor sees the empty cart and no summary', async ({ page }) => {
     await page.goto('/cart');
 
     await expect(page.getByText('Your cart is empty')).toBeVisible();
@@ -109,18 +117,45 @@ test.describe('cart', () => {
     await expect(page.getByText('Shipping', { exact: true })).toHaveCount(0);
   });
 
-  test('the cart summary and the checkout show the total of the server without shipping', async ({ page }) => {
+  test('the cart summary shows the shipping and a total that includes it', async ({ page }) => {
     await addFromProductPage(page, PRODUCT);
     await page.goto('/cart');
     await expect(page.getByRole('cell', { name: new RegExp(PRODUCT) })).toBeVisible();
-    await expect(page.getByText('Shipping', { exact: true })).toHaveCount(0);
+
+    await expect(summaryRow(page, 'Shipping')).toContainText(/R\$\s*10,00/);
+    const subtotal = moneyOf(await summaryRow(page, 'Subtotal').textContent());
+    const shipping = moneyOf(await summaryRow(page, 'Shipping').textContent());
+    const total = moneyOf(await summaryRow(page, 'Total').textContent());
+    expect(shipping).toBe(10);
+    expect(total).toBeCloseTo(subtotal + shipping, 2);
     await expect(page.getByPlaceholder('Coupon Code')).toHaveCount(0);
+  });
+
+  test('the checkout summary shows the same shipping and total', async ({ page }) => {
+    await addFromProductPage(page, PRODUCT);
+    await page.goto('/cart');
+    await expect(page.getByRole('cell', { name: new RegExp(PRODUCT) })).toBeVisible();
+    const cartTotal = moneyOf(await summaryRow(page, 'Total').textContent());
 
     await page.getByRole('link', { name: 'Proceed To Checkout' }).click();
 
     await expect(page).toHaveURL(/\/checkout$/);
     await expect(page.getByText(new RegExp(`${PRODUCT} × 1`))).toBeVisible();
-    await expect(page.getByText('Shipping', { exact: true })).toHaveCount(0);
+    await expect(summaryRow(page, 'Shipping')).toContainText(/R\$\s*10,00/);
+    expect(moneyOf(await summaryRow(page, 'Total').textContent())).toBeCloseTo(cartTotal, 2);
+  });
+
+  test('changing the quantity keeps the shipping and moves the total', async ({ page }) => {
+    await addFromProductPage(page, PRODUCT);
+    await page.goto('/cart');
+    await expect(page.getByRole('cell', { name: new RegExp(PRODUCT) })).toBeVisible();
+    const before = moneyOf(await summaryRow(page, 'Total').textContent());
+
+    await page.getByRole('button', { name: 'Increase quantity' }).click();
+    await expect(page.getByRole('link', { name: '2 items in cart' })).toBeVisible();
+
+    await expect(summaryRow(page, 'Shipping')).toContainText(/R\$\s*10,00/);
+    expect(moneyOf(await summaryRow(page, 'Total').textContent())).toBeGreaterThan(before);
   });
 
   test('two browsers keep separate carts', async ({ page, browser }) => {

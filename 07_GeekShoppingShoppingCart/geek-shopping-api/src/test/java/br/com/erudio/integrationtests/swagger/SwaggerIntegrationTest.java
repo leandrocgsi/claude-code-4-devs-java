@@ -20,6 +20,7 @@ import br.com.erudio.integrationtests.ProductApi;
 class SwaggerIntegrationTest extends ApiIntegrationTest {
 
     private static Map<String, Object> paths;
+    private static Map<String, Object> schemas;
 
     @BeforeAll
     @SuppressWarnings("unchecked")
@@ -36,6 +37,7 @@ class SwaggerIntegrationTest extends ApiIntegrationTest {
             .asString();
         var document = ProductApi.MAPPER.readValue(content, Map.class);
         paths = (Map<String, Object>) document.get("paths");
+        schemas = (Map<String, Object>) ((Map<String, Object>) document.get("components")).get("schemas");
     }
 
     @SuppressWarnings("unchecked")
@@ -176,5 +178,25 @@ class SwaggerIntegrationTest extends ApiIntegrationTest {
         assertEquals(Set.of("application/json"), putContent.keySet());
         assertTrue(parameters("/api/cart/v1/items/{itemId}", "put").stream()
             .anyMatch(parameter -> "itemId".equals(parameter.get("name")) && "path".equals(parameter.get("in"))));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void theCartSchemaDocumentsTheSubtotalTheShippingAndTheTotal() {
+        var cart = (Map<String, Object>) schemas.get("CartDTO");
+        assertNotNull(cart, schemas.keySet().toString());
+        var properties = (Map<String, Object>) cart.get("properties");
+
+        assertTrue(properties.keySet().containsAll(Set.of("items", "itemCount", "subtotal", "shipping", "total")), properties.keySet().toString());
+        assertEquals("number", ((Map<String, Object>) properties.get("shipping")).get("type"));
+        assertEquals("number", ((Map<String, Object>) properties.get("total")).get("type"));
+    }
+
+    @Test
+    void theCartOperationsSayThatTheResponseCarriesTheShippingAndTheTotal() {
+        assertTrue(String.valueOf(operation("/api/cart/v1", "get").get("description")).contains("shipping"));
+        assertTrue(String.valueOf(operation("/api/cart/v1/items", "post").get("description")).contains("shipping"));
+        assertTrue(String.valueOf(operation("/api/cart/v1/items/{itemId}", "put").get("description")).contains("shipping"));
+        assertTrue(String.valueOf(operation("/api/cart/v1", "get").get("description")).contains("total"));
     }
 }

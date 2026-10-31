@@ -22,7 +22,7 @@ import jakarta.validation.Valid;
 public interface CartControllerDocs {
 
     @Operation(summary = "Find the Cart",
-        description = "Finds the cart of the token with the current price of every product; a token without a cart gets an empty cart and nothing is stored",
+        description = "Finds the cart of the token with the current price of every product, the shipping and the total (subtotal plus shipping); a token without a cart gets an empty cart with no shipping and nothing is stored",
         tags = {"Cart"},
         responses = {
             @ApiResponse(description = "Success", responseCode = "200",
@@ -51,7 +51,7 @@ public interface CartControllerDocs {
         @RequestHeader("X-Cart-Token") String token);
 
     @Operation(summary = "Add an Item to the Cart",
-        description = "Adds a product to the cart, creating the cart on the first write; the same product, color and size adds to the quantity of the existing item. The quantity cannot exceed the stock",
+        description = "Adds a product to the cart, creating the cart on the first write; the same product, color and size adds to the quantity of the existing item. The quantity cannot exceed the stock. Returns the cart with the shipping and the total",
         tags = {"Cart"},
         responses = {
             @ApiResponse(description = "Success", responseCode = "200",
@@ -69,7 +69,7 @@ public interface CartControllerDocs {
         @Valid @RequestBody CartItemRequestDTO item);
 
     @Operation(summary = "Update an Item of the Cart",
-        description = "Sets the quantity of an item of the cart; the quantity cannot exceed the stock",
+        description = "Sets the quantity of an item of the cart; the quantity cannot exceed the stock. Returns the cart with the shipping and the total",
         tags = {"Cart"},
         responses = {
             @ApiResponse(description = "Success", responseCode = "200",

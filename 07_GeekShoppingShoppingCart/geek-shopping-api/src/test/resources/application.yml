@@ -6,6 +6,9 @@ cart:
     inactivity: 1d
     cron: "0 0 * * * *"
 
+shipping:
+  flat-rate: 10.00
+
 cors:
   originPatterns: http://localhost:8080,http://localhost:3000
 

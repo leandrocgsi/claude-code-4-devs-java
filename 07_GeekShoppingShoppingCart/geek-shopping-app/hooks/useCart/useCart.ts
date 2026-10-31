@@ -16,6 +16,7 @@ export function useCart() {
     items: query.data?.items ?? NO_ITEMS,
     itemCount: query.data?.itemCount ?? 0,
     subtotal: query.data?.subtotal ?? 0,
+    shipping: query.data?.shipping ?? 0,
     total: query.data?.total ?? 0,
     isLoading: query.isLoading,
     isError: query.isError,

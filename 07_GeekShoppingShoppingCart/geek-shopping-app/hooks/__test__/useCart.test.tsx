@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
-import { CART_URL, buildCartItemResponse, buildProductResponse } from '@/test/fixtures';
+import { CART_URL, buildCartItemResponse, buildCartResponse, buildProductResponse } from '@/test/fixtures';
 import { holdAddRequests, serveCart } from '@/test/msw/serveCart';
 import { renderHookWithProviders } from '@/test/renderWithProviders';
 import { useCartTokenStore } from '@/app/store/modules/cart/useCartTokenStore';
@@ -47,7 +47,8 @@ describe('useCart', () => {
     await waitFor(() => expect(result.current.items).toHaveLength(2));
     expect(result.current.itemCount).toBe(3);
     expect(result.current.subtotal).toBe(90);
-    expect(result.current.total).toBe(90);
+    expect(result.current.shipping).toBe(10);
+    expect(result.current.total).toBe(100);
     expect(result.current.items[0]).toMatchObject({
       id: 1,
       productId: 1,
@@ -91,6 +92,51 @@ describe('useCart', () => {
     await act(() => result.current.refetch());
 
     await waitFor(() => expect(result.current.isError).toBe(false));
+  });
+
+  it('has no shipping while the cart is loading and when the cart is empty', async () => {
+    serveCart();
+
+    const { result } = renderHookWithProviders(() => useCart());
+    expect(result.current.shipping).toBe(0);
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+    expect(result.current.shipping).toBe(0);
+    expect(result.current.total).toBe(0);
+  });
+
+  it('exposes the total of the server even when it differs from subtotal plus shipping', async () => {
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json({ items: [], itemCount: 0, subtotal: 40, shipping: 7.5, total: 88 }),
+      ),
+    );
+
+    const { result } = renderHookWithProviders(() => useCart());
+
+    await waitFor(() => expect(result.current.total).toBe(88));
+    expect(result.current.subtotal).toBe(40);
+    expect(result.current.shipping).toBe(7.5);
+  });
+
+  it('refreshes the shipping and the total after the quantity of an item changes', async () => {
+    let shipping = 10;
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json(buildCartResponse([buildCartItemResponse({ id: 7, quantity: shipping === 10 ? 1 : 2, unitPrice: 10 })], shipping)),
+      ),
+      http.put(`${CART_URL}/items/7`, () => {
+        shipping = 15;
+        return HttpResponse.json(buildCartResponse([buildCartItemResponse({ id: 7, quantity: 2, unitPrice: 10 })], shipping));
+      }),
+    );
+    const { result } = renderHookWithProviders(() => ({ cart: useCart(), update: useUpdateCartItem() }));
+    await waitFor(() => expect(result.current.cart.total).toBe(20));
+
+    act(() => result.current.update.mutate({ itemId: 7, quantity: 2 }));
+
+    await waitFor(() => expect(result.current.cart.total).toBe(35));
+    expect(result.current.cart.shipping).toBe(15);
   });
 
   it('treats a response without items as an empty cart', async () => {

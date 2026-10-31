@@ -15,6 +15,7 @@ export interface Cart {
   items: CartItem[];
   itemCount: number;
   subtotal: number;
+  shipping: number;
   total: number;
 }
 

@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,6 +42,7 @@ import br.com.erudio.model.CartStatus;
 import br.com.erudio.repositories.CartRepository;
 import br.com.erudio.repositories.ProductRepository;
 import br.com.erudio.services.CartService;
+import br.com.erudio.services.ShippingService;
 import br.com.erudio.unittests.mapper.mocks.MockCart;
 import br.com.erudio.unittests.mapper.mocks.MockProduct;
 
@@ -58,10 +61,15 @@ class CartServiceTest {
     @Mock
     private ProductRepository productRepository;
 
+    @Mock
+    private ShippingService shippingService;
+
     @BeforeEach
     void setUp() {
         carts = new MockCart();
         products = new MockProduct();
+        lenient().when(shippingService.calculate(anyInt())).thenAnswer(invocation ->
+            (int) invocation.getArgument(0) > 0 ? new BigDecimal("10.00") : new BigDecimal("0.00"));
     }
 
     private void stubSave() {
@@ -134,6 +142,7 @@ class CartServiceTest {
         assertTrue(result.getItems().isEmpty());
         assertEquals(0, result.getItemCount());
         assertEquals(new BigDecimal("0.00"), result.getSubtotal());
+        assertEquals(new BigDecimal("0.00"), result.getShipping());
         assertEquals(new BigDecimal("0.00"), result.getTotal());
         verify(repository, never()).saveAndFlush(any());
         verify(repository, never()).save(any());
@@ -477,7 +486,7 @@ class CartServiceTest {
     }
 
     @Test
-    @DisplayName("RN-8 and RN-12 the total equals the subtotal, with no shipping or discount")
+    @DisplayName("RN-12 and Frete RN-5 the total is the subtotal plus the shipping, both computed by the server")
     void totalsAreComputedByTheServer() {
         var cart = carts.mockOpenCart();
         carts.mockItem(cart, products.mockEntity(1), 5, 2);
@@ -490,7 +499,8 @@ class CartServiceTest {
 
         assertEquals(3, result.getItemCount());
         assertEquals(new BigDecimal("90.00"), result.getSubtotal());
-        assertEquals(new BigDecimal("90.00"), result.getTotal());
+        assertEquals(new BigDecimal("10.00"), result.getShipping());
+        assertEquals(new BigDecimal("100.00"), result.getTotal());
         assertEquals(new BigDecimal("50.00"), result.getItems().get(0).getLineTotal());
         assertEquals(new BigDecimal("40.00"), result.getItems().get(1).getLineTotal());
     }
@@ -649,5 +659,119 @@ class CartServiceTest {
         assertThrows(BadRequestException.class, () -> service.addItem("nope", addRequest(1L, 1, null, null)));
 
         verify(productRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Frete RN-2 the shipping is asked for the number of units of the cart")
+    void shippingIsCalculatedFromTheNumberOfUnits() {
+        var cart = carts.mockOpenCart();
+        carts.mockItem(cart, products.mockEntity(1), 5, 2);
+        carts.mockItem(cart, products.mockEntity(2), 6, 1);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+
+        service.find(MockCart.TOKEN);
+
+        verify(shippingService, times(1)).calculate(3);
+    }
+
+    @Test
+    @DisplayName("Frete RN-3 a token without a cart has no shipping and the total is zero")
+    void emptyCartHasNoShipping() {
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.empty());
+
+        var result = service.find(MockCart.TOKEN);
+
+        assertEquals(new BigDecimal("0.00"), result.getShipping());
+        assertEquals(new BigDecimal("0.00"), result.getTotal());
+        verify(shippingService, times(1)).calculate(0);
+    }
+
+    @Test
+    @DisplayName("Frete RN-3 a cart emptied by the client goes back to no shipping")
+    void clearedCartHasNoShipping() {
+        var cart = carts.mockOpenCart();
+        carts.mockItem(cart, products.mockEntity(1), 5, 2);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+        stubSave();
+
+        service.clear(MockCart.TOKEN);
+
+        var result = service.find(MockCart.TOKEN);
+        assertEquals(new BigDecimal("0.00"), result.getShipping());
+        assertEquals(new BigDecimal("0.00"), result.getTotal());
+    }
+
+    @Test
+    @DisplayName("Frete RN-5 adding an item answers with the shipping and the total")
+    void addItemAnswersWithShippingAndTotal() {
+        var product = products.mockEntity(1);
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.empty());
+        stubSave();
+
+        var result = service.addItem(MockCart.TOKEN, addRequest(1L, 2, null, null));
+
+        assertEquals(new BigDecimal("50.00"), result.getSubtotal());
+        assertEquals(new BigDecimal("10.00"), result.getShipping());
+        assertEquals(new BigDecimal("60.00"), result.getTotal());
+        verify(shippingService, times(1)).calculate(2);
+    }
+
+    @Test
+    @DisplayName("Frete RN-5 updating an item answers with the shipping and the total")
+    void updateItemAnswersWithShippingAndTotal() {
+        var cart = carts.mockOpenCart();
+        carts.mockItem(cart, products.mockEntity(1), 5, 1);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+        stubSave();
+
+        var result = service.updateItem(MockCart.TOKEN, 5L, quantityRequest(4));
+
+        assertEquals(new BigDecimal("100.00"), result.getSubtotal());
+        assertEquals(new BigDecimal("10.00"), result.getShipping());
+        assertEquals(new BigDecimal("110.00"), result.getTotal());
+        verify(shippingService, times(1)).calculate(4);
+    }
+
+    @Test
+    @DisplayName("Frete RN-5 the subtotal stays the sum of the lines, without the shipping")
+    void subtotalDoesNotIncludeTheShipping() {
+        var cart = carts.mockOpenCart();
+        carts.mockItem(cart, products.mockEntity(1), 5, 1);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+
+        var result = service.find(MockCart.TOKEN);
+
+        assertEquals(new BigDecimal("25.00"), result.getSubtotal());
+        assertEquals(result.getSubtotal().add(result.getShipping()), result.getTotal());
+    }
+
+    @Test
+    @DisplayName("Frete RN-6 the shipping is read again on every read and is not stored in the cart")
+    void shippingIsRecalculatedOnEveryRead() {
+        var cart = carts.mockOpenCart();
+        carts.mockItem(cart, products.mockEntity(1), 5, 1);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+        when(shippingService.calculate(1)).thenReturn(new BigDecimal("10.00"), new BigDecimal("15.00"));
+
+        var first = service.find(MockCart.TOKEN);
+        var second = service.find(MockCart.TOKEN);
+
+        assertEquals(new BigDecimal("35.00"), first.getTotal());
+        assertEquals(new BigDecimal("40.00"), second.getTotal());
+        verify(repository, never()).saveAndFlush(any());
+    }
+
+    @Test
+    @DisplayName("Frete RN-5 a converted cart can still be read with its shipping")
+    void convertedCartKeepsItsShipping() {
+        var cart = carts.mockCart(CartStatus.CONVERTED);
+        carts.mockItem(cart, products.mockEntity(1), 5, 1);
+        when(repository.findWithItemsByToken(MockCart.TOKEN)).thenReturn(Optional.of(cart));
+
+        var result = service.find(MockCart.TOKEN);
+
+        assertEquals(new BigDecimal("10.00"), result.getShipping());
+        assertEquals(new BigDecimal("35.00"), result.getTotal());
     }
 }

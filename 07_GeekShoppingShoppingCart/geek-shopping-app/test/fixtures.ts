@@ -132,13 +132,16 @@ export function buildCartItemResponse(overrides: Partial<CartItemResponse> = {})
   };
 }
 
-export function buildCartResponse(items: CartItemResponse[]) {
+export const FLAT_SHIPPING = 10;
+
+export function buildCartResponse(items: CartItemResponse[], shipping: number = items.length > 0 ? FLAT_SHIPPING : 0) {
   const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
   return {
     items,
     itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
     subtotal,
-    total: subtotal,
+    shipping,
+    total: subtotal + shipping,
     _links: { self: { href: CART_URL, type: 'GET' } },
   };
 }

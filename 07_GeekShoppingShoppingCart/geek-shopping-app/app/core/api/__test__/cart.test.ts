@@ -51,7 +51,8 @@ describe('cartService', () => {
       ],
       itemCount: 2,
       subtotal: 50,
-      total: 50,
+      shipping: 10,
+      total: 60,
     });
   });
 
@@ -70,7 +71,42 @@ describe('cartService', () => {
   it('reads an empty cart', async () => {
     server.use(http.get(CART_URL, () => HttpResponse.json(buildCartResponse([]))));
 
-    expect(await cartService.get()).toEqual({ items: [], itemCount: 0, subtotal: 0, total: 0 });
+    expect(await cartService.get()).toEqual({ items: [], itemCount: 0, subtotal: 0, shipping: 0, total: 0 });
+  });
+
+  it('maps the shipping and the total exactly as the server sends them', async () => {
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json({ items: [], itemCount: 0, subtotal: 50, shipping: 12.34, total: 99.99 }),
+      ),
+    );
+
+    const cart = await cartService.get();
+
+    expect(cart.subtotal).toBe(50);
+    expect(cart.shipping).toBe(12.34);
+    expect(cart.total).toBe(99.99);
+  });
+
+  it('treats a response without the shipping as no shipping', async () => {
+    server.use(http.get(CART_URL, () => HttpResponse.json({ items: [], itemCount: 0, subtotal: 50, total: 50 })));
+
+    const cart = await cartService.get();
+
+    expect(cart.shipping).toBe(0);
+    expect(cart.total).toBe(50);
+  });
+
+  it('carries the shipping and the total of the cart after adding and updating an item', async () => {
+    serveCart([buildCartItemResponse({ id: 6, quantity: 1, unitPrice: 10 })], [buildProductResponse({ id: 3, price: 40 })]);
+
+    const added = await cartService.addItem({ productId: 3, quantity: 1 });
+    const updated = await cartService.updateItem(6, 5);
+
+    expect(added.shipping).toBe(10);
+    expect(added.total).toBe(added.subtotal + 10);
+    expect(updated.shipping).toBe(10);
+    expect(updated.total).toBe(updated.subtotal + 10);
   });
 
   it('reads a cart whose response has no items field', async () => {

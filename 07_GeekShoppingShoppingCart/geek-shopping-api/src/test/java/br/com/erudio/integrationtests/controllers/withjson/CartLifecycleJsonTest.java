@@ -80,7 +80,7 @@ class CartLifecycleJsonTest extends ApiIntegrationTest {
         CartApi.assertMoney("30.00", cart.getItems().get(0).getUnitPrice());
         CartApi.assertMoney("60.00", cart.getItems().get(0).getLineTotal());
         CartApi.assertMoney("60.00", cart.getSubtotal());
-        CartApi.assertMoney("60.00", cart.getTotal());
+        CartApi.assertMoney("70.00", cart.getTotal());
     }
 
     @Test

@@ -19,6 +19,7 @@ interface CartResponse {
   items?: CartItemResponse[];
   itemCount: number;
   subtotal: number;
+  shipping?: number;
   total: number;
 }
 
@@ -44,6 +45,7 @@ function toCart(response: CartResponse): Cart {
     items: (response.items ?? []).map(toCartItem),
     itemCount: response.itemCount,
     subtotal: response.subtotal,
+    shipping: response.shipping ?? 0,
     total: response.total,
   };
 }

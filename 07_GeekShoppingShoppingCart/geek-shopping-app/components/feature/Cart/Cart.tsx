@@ -18,7 +18,7 @@ import QuantityStepper from '@/components/ui/molecules/QuantityStepper';
 import styles from './Cart.module.css';
 
 export default function Cart() {
-  const { items, isLoading, isError, refetch, subtotal, total } = useCart();
+  const { items, isLoading, isError, refetch, subtotal, shipping, total } = useCart();
   const updateItem = useUpdateCartItem();
   const removeItem = useRemoveCartItem();
   const clearCart = useClearCart();
@@ -123,6 +123,10 @@ export default function Cart() {
               <div className={styles.summaryRow}>
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Shipping</span>
+                <span>{formatPrice(shipping)}</span>
               </div>
               <div className={styles.summaryTotalRow}>
                 <span>Total</span>

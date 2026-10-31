@@ -77,7 +77,7 @@ class CartControllerJsonTest extends ApiIntegrationTest {
         CartApi.assertMoney("50.00", item.getLineTotal());
         assertEquals(2, cart.getItemCount());
         CartApi.assertMoney("50.00", cart.getSubtotal());
-        CartApi.assertMoney("50.00", cart.getTotal());
+        CartApi.assertMoney("60.00", cart.getTotal());
     }
 
     @Test
@@ -113,7 +113,7 @@ class CartControllerJsonTest extends ApiIntegrationTest {
         assertEquals(book.getId(), cart.getItems().get(1).getProductId());
         assertEquals(6, cart.getItemCount());
         CartApi.assertMoney("165.00", cart.getSubtotal());
-        CartApi.assertMoney("165.00", cart.getTotal());
+        CartApi.assertMoney("175.00", cart.getTotal());
     }
 
     @Test
@@ -125,7 +125,7 @@ class CartControllerJsonTest extends ApiIntegrationTest {
         assertEquals(mugItemId, cart.getItems().get(0).getId());
         assertEquals(bookItemId, cart.getItems().get(1).getId());
         assertEquals(6, cart.getItemCount());
-        CartApi.assertMoney("165.00", cart.getTotal());
+        CartApi.assertMoney("175.00", cart.getTotal());
     }
 
     @Test
@@ -160,7 +160,7 @@ class CartControllerJsonTest extends ApiIntegrationTest {
         assertEquals(1, cart.getItems().size());
         assertEquals(mugItemId, cart.getItems().get(0).getId());
         assertEquals(2, cart.getItemCount());
-        CartApi.assertMoney("50.00", cart.getTotal());
+        CartApi.assertMoney("60.00", cart.getTotal());
     }
 
     @Test

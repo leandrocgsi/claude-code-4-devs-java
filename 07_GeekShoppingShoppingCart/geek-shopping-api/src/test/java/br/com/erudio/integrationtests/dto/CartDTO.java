@@ -13,6 +13,7 @@ public class CartDTO implements Serializable {
     private List<CartItemDTO> items = new ArrayList<>();
     private Integer itemCount;
     private BigDecimal subtotal;
+    private BigDecimal shipping;
     private BigDecimal total;
 
     public CartDTO() {}
@@ -41,6 +42,14 @@ public class CartDTO implements Serializable {
         this.subtotal = subtotal;
     }
 
+    public BigDecimal getShipping() {
+        return shipping;
+    }
+
+    public void setShipping(BigDecimal shipping) {
+        this.shipping = shipping;
+    }
+
     public BigDecimal getTotal() {
         return total;
     }
@@ -53,11 +62,11 @@ public class CartDTO implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         CartDTO cartDTO = (CartDTO) o;
-        return Objects.equals(getItems(), cartDTO.getItems()) && Objects.equals(getItemCount(), cartDTO.getItemCount()) && Objects.equals(getSubtotal(), cartDTO.getSubtotal()) && Objects.equals(getTotal(), cartDTO.getTotal());
+        return Objects.equals(getItems(), cartDTO.getItems()) && Objects.equals(getItemCount(), cartDTO.getItemCount()) && Objects.equals(getSubtotal(), cartDTO.getSubtotal()) && Objects.equals(getShipping(), cartDTO.getShipping()) && Objects.equals(getTotal(), cartDTO.getTotal());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getItems(), getItemCount(), getSubtotal(), getTotal());
+        return Objects.hash(getItems(), getItemCount(), getSubtotal(), getShipping(), getTotal());
     }
 }

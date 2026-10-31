@@ -37,9 +37,10 @@ describe('Checkout', () => {
     expect(await screen.findByText('Your cart is empty')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Go to Shop' })).toHaveAttribute('href', '/products');
     expect(screen.queryByRole('button', { name: 'Place Order' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
   });
 
-  it('summarizes the lines of the cart with the totals of the server and no shipping', async () => {
+  it('summarizes the lines of the cart with the shipping and the total of the server', async () => {
     serveCart([
       buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: 2 }),
       buildCartItemResponse({ id: 2, name: 'Space Book', unitPrice: 40, quantity: 1 }),
@@ -52,8 +53,28 @@ describe('Checkout', () => {
     const bookRow = screen.getByText('Space Book × 1').closest('div') as HTMLElement;
     expect(within(bookRow).getByText(/R\$\s?40,00/)).toBeInTheDocument();
     expect(screen.getByText('Subtotal').closest('div')).toHaveTextContent(/R\$\s?90,00/);
-    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?90,00/);
-    expect(screen.queryByText('Shipping')).not.toBeInTheDocument();
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?10,00/);
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?100,00/);
+  });
+
+  it('shows the shipping and the total of the server even when the total differs from the local sum', async () => {
+    server.use(
+      http.get(CART_URL, () =>
+        HttpResponse.json({
+          items: [buildCartItemResponse({ id: 1, name: 'Black Mug', unitPrice: 25, quantity: 1 })],
+          itemCount: 1,
+          subtotal: 25,
+          shipping: 12.34,
+          total: 99.99,
+        }),
+      ),
+    );
+
+    renderWithProviders(<Checkout />);
+    await screen.findByText('Black Mug × 1');
+
+    expect(screen.getByText('Shipping').closest('div')).toHaveTextContent(/R\$\s?12,34/);
+    expect(screen.getByText('Total', { selector: 'span' }).closest('div')).toHaveTextContent(/R\$\s?99,99/);
   });
 
   it('shows the error state of the cart as an empty checkout instead of crashing', async () => {

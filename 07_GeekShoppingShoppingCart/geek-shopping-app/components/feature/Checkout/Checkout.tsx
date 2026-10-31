@@ -26,7 +26,7 @@ const PAYMENT_OPTIONS = [
 ];
 
 export default function Checkout() {
-  const { items, subtotal, total, isLoading } = useCart();
+  const { items, subtotal, shipping, total, isLoading } = useCart();
   const clearCart = useClearCart();
   const [payment, setPayment] = useState('paypal');
   const [orderPlaced, setOrderPlaced] = useState(false);
@@ -156,6 +156,10 @@ export default function Checkout() {
             <div className={styles.summaryRow}>
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>Shipping</span>
+              <span>{formatPrice(shipping)}</span>
             </div>
             <div className={styles.summaryTotalRow}>
               <span>Total</span>
