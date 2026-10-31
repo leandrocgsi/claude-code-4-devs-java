@@ -1,7 +1,10 @@
+import { ApiError } from '@/app/core/api/httpClient';
 import { toApiUrl } from '../apiUrl';
 import { formatPrice } from '../currency';
 import { cropImageToJpeg, toJpegFileName } from '../cropImage';
+import { getErrorMessage } from '../errorMessage';
 import { MAX_IMAGE_SIZE_BYTES, validateImageFile } from '../imageFile';
+import { generateUuid } from '../uuid';
 
 function fileOf(type: string, size: number, name = 'file') {
   return new File([new Uint8Array(size)], name, { type });
@@ -147,5 +150,58 @@ describe('cropImageToJpeg', () => {
     await cropImageToJpeg('blob:source', { x: 0, y: 0, width: 0, height: 0.2 }, 'a.png');
 
     expect(drawImage).toHaveBeenCalledWith(expect.anything(), 0, 0, 0, 0.2, 0, 0, 1, 1);
+  });
+});
+
+describe('generateUuid', () => {
+  const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('returns a version 4 UUID', () => {
+    expect(generateUuid()).toMatch(UUID_V4);
+  });
+
+  it('returns a different value on every call', () => {
+    expect(generateUuid()).not.toBe(generateUuid());
+  });
+
+  it('builds a valid UUID when randomUUID is not available', () => {
+    vi.stubGlobal('crypto', { getRandomValues: (array: Uint8Array) => array.fill(255) });
+
+    expect(generateUuid()).toBe('ffffffff-ffff-4fff-bfff-ffffffffffff');
+  });
+
+  it('sets the version and variant bits of the fallback', () => {
+    vi.stubGlobal('crypto', { getRandomValues: (array: Uint8Array) => array.fill(0) });
+
+    expect(generateUuid()).toBe('00000000-0000-4000-8000-000000000000');
+  });
+});
+
+describe('getErrorMessage', () => {
+  it('prefers the message of the first field error of the API', () => {
+    const error = new ApiError('Validation failed', 400, { quantity: 'Only 2 units are available' });
+
+    expect(getErrorMessage(error)).toBe('Only 2 units are available');
+  });
+
+  it('falls back to the message of the API error without fields', () => {
+    expect(getErrorMessage(new ApiError('No records found for this ID!', 404))).toBe('No records found for this ID!');
+  });
+
+  it('falls back to the message when the field map is empty', () => {
+    expect(getErrorMessage(new ApiError('Validation failed', 400, {}))).toBe('Validation failed');
+  });
+
+  it('uses the message of a generic error', () => {
+    expect(getErrorMessage(new Error('boom'))).toBe('boom');
+  });
+
+  it('uses a default message for anything else', () => {
+    expect(getErrorMessage('oops')).toBe('Unexpected error.');
+    expect(getErrorMessage(null)).toBe('Unexpected error.');
   });
 });

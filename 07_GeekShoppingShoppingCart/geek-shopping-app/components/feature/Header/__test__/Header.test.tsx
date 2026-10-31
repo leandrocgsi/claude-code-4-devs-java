@@ -1,10 +1,12 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
-import { PRODUCTS_URL } from '@/test/fixtures';
+import { PRODUCTS_URL, buildCartItemResponse, buildProductResponse } from '@/test/fixtures';
+import { serveCart } from '@/test/msw/serveCart';
 import { renderWithProviders } from '@/test/renderWithProviders';
-import { useCartStore } from '@/app/store/modules/cart/useCartStore';
+import { useCartTokenStore } from '@/app/store/modules/cart/useCartTokenStore';
 import { useWishlistStore } from '@/app/store/modules/global/useWishlistStore';
+import { useAddToCart } from '@/hooks/useAddToCart/useAddToCart';
 import Header from '../Header';
 
 const push = vi.fn();
@@ -17,7 +19,8 @@ vi.mock('next/navigation', () => ({
 describe('Header', () => {
   beforeEach(() => {
     push.mockClear();
-    useCartStore.setState({ quantities: {} });
+    localStorage.clear();
+    useCartTokenStore.setState({ token: null });
     useWishlistStore.setState({ productIds: new Set() });
   });
 
@@ -108,24 +111,37 @@ describe('Header', () => {
     expect(within(screen.getByRole('link', { name: '0 items in cart' })).queryByText(/\d/)).not.toBeInTheDocument();
   });
 
-  it('shows the total number of units in the cart', () => {
-    useCartStore.setState({ quantities: { 1: 2, 2: 3 } });
+  it('shows the total number of units in the cart', async () => {
+    serveCart([buildCartItemResponse({ id: 1, quantity: 2 }), buildCartItemResponse({ id: 2, quantity: 3 })]);
 
     renderWithProviders(<Header />);
 
-    const cart = screen.getByRole('link', { name: '5 items in cart' });
+    const cart = await screen.findByRole('link', { name: '5 items in cart' });
     expect(cart).toHaveAttribute('href', '/cart');
     expect(within(cart).getByText('5')).toBeInTheDocument();
   });
 
-  it('updates the cart badge when a product is added', () => {
-    renderWithProviders(<Header />);
-
-    fireEvent.click(screen.getByRole('button', { name: /Categories/ }));
+  it('updates the cart badge when a product is added', async () => {
+    serveCart([], [buildProductResponse({ id: 1 })]);
+    function AddTwo() {
+      const { addItem } = useAddToCart();
+      return (
+        <button type="button" onClick={() => addItem(1, 2)}>
+          add two
+        </button>
+      );
+    }
+    renderWithProviders(
+      <>
+        <Header />
+        <AddTwo />
+      </>,
+    );
     expect(screen.getByRole('link', { name: '0 items in cart' })).toBeInTheDocument();
-    useCartStore.getState().addItem(1, 2);
 
-    return waitFor(() => expect(screen.getByRole('link', { name: '2 items in cart' })).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'add two' }));
+
+    await waitFor(() => expect(screen.getByRole('link', { name: '2 items in cart' })).toBeInTheDocument());
   });
 
   it('shows the number of wishlisted products', () => {

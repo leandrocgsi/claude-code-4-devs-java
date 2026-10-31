@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { useCartTokenStore } from '@/app/store/modules/cart/useCartTokenStore';
 
 export type FieldErrors = Record<string, string>;
 
@@ -19,7 +20,13 @@ interface ErrorBody {
   errors?: FieldErrors;
 }
 
+const CART_PATH_PREFIX = '/api/cart';
+const CART_TOKEN_HEADER = 'X-Cart-Token';
+
 async function requestInterceptor(config: InternalAxiosRequestConfig) {
+  if (config.url?.startsWith(CART_PATH_PREFIX)) {
+    config.headers.set(CART_TOKEN_HEADER, useCartTokenStore.getState().ensureToken());
+  }
   return config;
 }
 

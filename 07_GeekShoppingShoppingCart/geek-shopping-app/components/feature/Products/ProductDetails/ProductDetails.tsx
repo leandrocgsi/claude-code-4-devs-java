@@ -12,7 +12,7 @@ interface ProductDetailsProps {
 }
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
-  const addItem = useAddToCart();
+  const { addItem, isPending } = useAddToCart();
   const inStock = product.quantity > 0;
 
   return (
@@ -29,7 +29,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           </span>
         </div>
         <div className={styles.actions}>
-          <Button variant="primary" disabled={!inStock} onClick={() => addItem(product.id)}>
+          <Button variant="primary" disabled={!inStock || isPending} onClick={() => addItem(product.id)}>
             {inStock ? 'Add to Cart' : 'Out of stock'}
           </Button>
           <Link href={`/products/${product.id}`} className={styles.detailsLink}>

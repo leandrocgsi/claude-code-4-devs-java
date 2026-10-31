@@ -9,3 +9,7 @@ export const productKeys = {
   facets: (params: FacetsQueryParams) => ['products', 'facets', params] as const,
   categories: ['products', 'categories'] as const,
 };
+
+export const cartKeys = {
+  all: ['cart'] as const,
+};

@@ -2,8 +2,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { FACETS, PRODUCTS_URL, buildProductResponse, halPage } from '@/test/fixtures';
+import { serveCart } from '@/test/msw/serveCart';
 import { renderWithProviders } from '@/test/renderWithProviders';
-import { useCartStore } from '@/app/store/modules/cart/useCartStore';
 import Products from '../Products';
 
 const push = vi.fn();
@@ -41,7 +41,6 @@ describe('Products', () => {
   beforeEach(() => {
     push.mockClear();
     setUrl('');
-    useCartStore.setState({ quantities: {} });
   });
 
   it('shows the loading state first', () => {
@@ -310,12 +309,14 @@ describe('Products', () => {
   });
 
   it('adds a product to the cart from the quick view of the grid', async () => {
+    const cart = serveCart([], [buildProductResponse({ id: 1, name: 'Black Mug' })]);
     renderWithProviders(<Products />);
     await screen.findByRole('link', { name: 'Black Mug' });
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Quick view' })[0]);
     fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Add to Cart' }));
 
-    expect(useCartStore.getState().quantities).toEqual({ 1: 1 });
+    await waitFor(() => expect(cart.writes()).toHaveLength(1));
+    expect(cart.writes()[0].body).toEqual({ productId: 1, quantity: 1 });
   });
 });

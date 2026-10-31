@@ -2,8 +2,8 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { PRODUCTS_URL, buildProductResponse } from '@/test/fixtures';
+import { serveCart } from '@/test/msw/serveCart';
 import { renderWithProviders } from '@/test/renderWithProviders';
-import { useCartStore } from '@/app/store/modules/cart/useCartStore';
 import { PLACEHOLDER_IMAGE } from '@/components/ui/atoms/ProductImage';
 import ProductDetail from '../ProductDetail';
 
@@ -12,10 +12,6 @@ function serve(overrides: Parameters<typeof buildProductResponse>[0] = {}) {
 }
 
 describe('ProductDetail', () => {
-  beforeEach(() => {
-    useCartStore.setState({ quantities: {} });
-  });
-
   it('shows the loading state first', () => {
     serve();
 
@@ -119,6 +115,7 @@ describe('ProductDetail', () => {
   });
 
   it('adds the chosen quantity to the cart and confirms', async () => {
+    const cart = serveCart([], [buildProductResponse({ id: 1, quantity: 10 })]);
     serve({ quantity: 10 });
     renderWithProviders(<ProductDetail id={1} />);
     await screen.findByRole('heading', { level: 1 });
@@ -127,8 +124,8 @@ describe('ProductDetail', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Increase quantity' }));
     fireEvent.click(screen.getByRole('button', { name: 'Add to Cart' }));
 
-    expect(useCartStore.getState().quantities).toEqual({ 1: 3 });
-    expect(screen.getByRole('status')).toHaveTextContent('Added to your cart.');
+    expect(await screen.findByRole('status')).toHaveTextContent('Added to your cart.');
+    expect(cart.writes().map((call) => call.body)).toEqual([{ productId: 1, quantity: 3 }]);
     expect(screen.getByRole('link', { name: 'View cart' })).toHaveAttribute('href', '/cart');
   });
 
@@ -151,6 +148,7 @@ describe('ProductDetail', () => {
   });
 
   it('marks a sold out product, hides the stepper and disables the button', async () => {
+    const cart = serveCart();
     serve({ quantity: 0 });
     renderWithProviders(<ProductDetail id={1} />);
     await screen.findByRole('heading', { level: 1 });
@@ -159,7 +157,7 @@ describe('ProductDetail', () => {
     expect(screen.getByRole('button', { name: 'Out of stock' })).toBeDisabled();
     expect(screen.queryByRole('button', { name: 'Increase quantity' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Out of stock' }));
-    expect(useCartStore.getState().quantities).toEqual({});
+    expect(cart.calls).toEqual([]);
   });
 
   it('puts the product name in the breadcrumb', async () => {

@@ -1,27 +1,28 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { FaMinus, FaPlus, FaTimes } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { useCart } from '@/hooks/useCart/useCart';
+import { useClearCart } from '@/hooks/useClearCart/useClearCart';
+import { useRemoveCartItem } from '@/hooks/useRemoveCartItem/useRemoveCartItem';
+import { useUpdateCartItem } from '@/hooks/useUpdateCartItem/useUpdateCartItem';
 import { formatPrice } from '@/app/core/utils/currency';
-import Input from '@/components/ui/atoms/Input';
+import { getErrorMessage } from '@/app/core/utils/errorMessage';
 import Button from '@/components/ui/atoms/Button';
+import EmptyState from '@/components/ui/atoms/EmptyState';
 import ProductImage from '@/components/ui/atoms/ProductImage';
 import SectionTitle from '@/components/ui/atoms/SectionTitle';
 import Spinner from '@/components/ui/atoms/Spinner';
 import InlineAlert from '@/components/ui/molecules/InlineAlert';
+import QuantityStepper from '@/components/ui/molecules/QuantityStepper';
 import styles from './Cart.module.css';
 
 export default function Cart() {
-  const { items, isLoading, isError, refetch, subtotal, shipping, total, setQuantity, removeItem } = useCart();
-  const [coupon, setCoupon] = useState('');
-  const [couponMessage, setCouponMessage] = useState('');
-
-  const applyCoupon = () => {
-    if (!coupon.trim()) return;
-    setCouponMessage('Coupons are not available yet.');
-  };
+  const { items, isLoading, isError, refetch, subtotal, total } = useCart();
+  const updateItem = useUpdateCartItem();
+  const removeItem = useRemoveCartItem();
+  const clearCart = useClearCart();
+  const busy = updateItem.isPending || removeItem.isPending || clearCart.isPending;
 
   return (
     <section className={styles.wrapper}>
@@ -33,25 +34,29 @@ export default function Cart() {
         <span className={styles.breadcrumbActive}>Shopping Cart</span>
       </nav>
 
-      {isLoading && items.length === 0 ? (
+      {isLoading ? (
         <Spinner label="Loading your cart" />
       ) : isError ? (
         <div className={styles.empty}>
-          <InlineAlert tone="error">Could not load some products of your cart.</InlineAlert>
-          <Button variant="secondary" onClick={refetch}>
+          <InlineAlert tone="error">Could not load your cart.</InlineAlert>
+          <Button variant="secondary" onClick={() => refetch()}>
             Try again
           </Button>
         </div>
       ) : items.length === 0 ? (
-        <div className={styles.empty}>
-          <p>Your cart is empty.</p>
+        <EmptyState title="Your cart is empty">
           <Link href="/products" className={styles.emptyLink}>
             Continue shopping
           </Link>
-        </div>
+        </EmptyState>
       ) : (
         <div className={styles.layout}>
           <div className={styles.tableWrap}>
+            {updateItem.isError ? (
+              <div className={styles.inlineError}>
+                <InlineAlert tone="error">{getErrorMessage(updateItem.error)}</InlineAlert>
+              </div>
+            ) : null}
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -64,32 +69,27 @@ export default function Cart() {
               </thead>
               <tbody>
                 {items.map((item) => (
-                  <tr key={item.product.id}>
+                  <tr key={item.id}>
                     <td className={styles.productCell}>
-                      <ProductImage src={item.product.imageUrl} alt={item.product.name} className={styles.thumbnail} />
-                      {item.product.name}
+                      <ProductImage src={item.imageUrl} alt={item.name} className={styles.thumbnail} />
+                      <div className={styles.productInfo}>
+                        <span>{item.name}</span>
+                        {item.color || item.size ? (
+                          <span className={styles.itemMeta}>
+                            {[item.color, item.size].filter(Boolean).join(' / ')}
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
-                    <td>{formatPrice(item.product.price)}</td>
+                    <td>{formatPrice(item.unitPrice)}</td>
                     <td>
                       <div className={styles.quantity}>
-                        <button
-                          type="button"
-                          className={styles.quantityButton}
-                          onClick={() => setQuantity(item.product.id, item.quantity - 1)}
-                          aria-label="Decrease quantity"
-                        >
-                          <FaMinus />
-                        </button>
-                        <span className={styles.quantityValue}>{item.quantity}</span>
-                        <button
-                          type="button"
-                          className={styles.quantityButton}
-                          onClick={() => setQuantity(item.product.id, item.quantity + 1)}
-                          disabled={item.quantity >= item.product.quantity}
-                          aria-label="Increase quantity"
-                        >
-                          <FaPlus />
-                        </button>
+                        <QuantityStepper
+                          value={item.quantity}
+                          min={1}
+                          max={item.stock}
+                          onChange={(quantity) => updateItem.mutate({ itemId: item.id, quantity })}
+                        />
                       </div>
                     </td>
                     <td>{formatPrice(item.lineTotal)}</td>
@@ -97,8 +97,9 @@ export default function Cart() {
                       <button
                         type="button"
                         className={styles.removeButton}
-                        onClick={() => removeItem(item.product.id)}
-                        aria-label={`Remove ${item.product.name}`}
+                        onClick={() => removeItem.mutate(item.id)}
+                        disabled={busy}
+                        aria-label={`Remove ${item.name}`}
                       >
                         <FaTimes />
                       </button>
@@ -107,17 +108,14 @@ export default function Cart() {
                 ))}
               </tbody>
             </table>
+            <div className={styles.tableActions}>
+              <Button variant="secondary" onClick={() => clearCart.mutate()} disabled={busy}>
+                Clear cart
+              </Button>
+            </div>
           </div>
 
           <div className={styles.summaryColumn}>
-            <div className={styles.coupon}>
-              <Input placeholder="Coupon Code" value={coupon} onChange={(event) => setCoupon(event.target.value)} />
-              <Button variant="primary" onClick={applyCoupon}>
-                Apply Coupon
-              </Button>
-            </div>
-            {couponMessage ? <p className={styles.couponMessage}>{couponMessage}</p> : null}
-
             <SectionTitle as="h5" size="sm" className={styles.summaryTitle}>
               Cart Summary
             </SectionTitle>
@@ -125,10 +123,6 @@ export default function Cart() {
               <div className={styles.summaryRow}>
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>Shipping</span>
-                <span>{formatPrice(shipping)}</span>
               </div>
               <div className={styles.summaryTotalRow}>
                 <span>Total</span>

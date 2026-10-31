@@ -33,7 +33,7 @@ test.describe('catalog', () => {
     await expect(page).toHaveURL(/\/products\/\d+$/);
     await expect(page.getByRole('heading', { level: 1, name: 'Caneca Super Mario Coffee' })).toBeVisible();
     await page.getByRole('button', { name: 'Add to Cart' }).click();
-    await expect(page.getByText('Added to your cart.')).toBeVisible();
+    await expect(page.getByText('Added to your cart.').first()).toBeVisible();
 
     await page.getByRole('link', { name: 'View cart' }).click();
     await expect(page).toHaveURL(/\/cart$/);

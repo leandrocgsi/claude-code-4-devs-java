@@ -1,6 +1,11 @@
 server:
   port: 8888
 
+cart:
+  cleanup:
+    inactivity: 1d
+    cron: "0 0 * * * *"
+
 cors:
   originPatterns: http://localhost:8080,http://localhost:3000
 

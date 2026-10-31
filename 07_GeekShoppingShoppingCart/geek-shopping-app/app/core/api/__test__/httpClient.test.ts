@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { API_URL } from '@/test/fixtures';
+import { useCartTokenStore } from '@/app/store/modules/cart/useCartTokenStore';
 import { ApiError, api } from '../httpClient';
 
 async function failure(request: Promise<unknown>): Promise<ApiError> {
@@ -128,5 +129,92 @@ describe('httpClient error normalization', () => {
 
     expect(new URL(url).searchParams.getAll('color')).toEqual(['Black', 'White']);
     expect(url).not.toContain('[]');
+  });
+});
+
+describe('httpClient cart token', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    useCartTokenStore.setState({ token: null });
+  });
+
+  it('adds the cart token header to every cart request', async () => {
+    let header: string | null = null;
+    server.use(
+      http.get(`${API_URL}/api/cart/v1`, ({ request }) => {
+        header = request.headers.get('X-Cart-Token');
+        return HttpResponse.json({});
+      }),
+    );
+
+    await api.get('/api/cart/v1');
+
+    expect(header).toBe(useCartTokenStore.getState().token);
+    expect(header).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it('adds the header to the item routes of the cart too', async () => {
+    const headers: Array<string | null> = [];
+    server.use(
+      http.post(`${API_URL}/api/cart/v1/items`, ({ request }) => {
+        headers.push(request.headers.get('X-Cart-Token'));
+        return HttpResponse.json({});
+      }),
+      http.delete(`${API_URL}/api/cart/v1/items/3`, ({ request }) => {
+        headers.push(request.headers.get('X-Cart-Token'));
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
+    await api.post('/api/cart/v1/items', {});
+    await api.delete('/api/cart/v1/items/3');
+
+    expect(headers[0]).not.toBeNull();
+    expect(headers[1]).toBe(headers[0]);
+  });
+
+  it('reuses the same token on the next requests', async () => {
+    const headers: Array<string | null> = [];
+    server.use(
+      http.get(`${API_URL}/api/cart/v1`, ({ request }) => {
+        headers.push(request.headers.get('X-Cart-Token'));
+        return HttpResponse.json({});
+      }),
+    );
+
+    await api.get('/api/cart/v1');
+    await api.get('/api/cart/v1');
+
+    expect(headers[1]).toBe(headers[0]);
+  });
+
+  it('uses the token saved by a previous visit', async () => {
+    useCartTokenStore.setState({ token: 'saved-token' });
+    let header: string | null = null;
+    server.use(
+      http.get(`${API_URL}/api/cart/v1`, ({ request }) => {
+        header = request.headers.get('X-Cart-Token');
+        return HttpResponse.json({});
+      }),
+    );
+
+    await api.get('/api/cart/v1');
+
+    expect(header).toBe('saved-token');
+  });
+
+  it('does not send the cart token to other routes nor create one', async () => {
+    let header: string | null = 'unset';
+    server.use(
+      http.get(`${API_URL}/api/product/v1`, ({ request }) => {
+        header = request.headers.get('X-Cart-Token');
+        return HttpResponse.json({});
+      }),
+    );
+
+    await api.get('/api/product/v1');
+
+    expect(header).toBeNull();
+    expect(useCartTokenStore.getState().token).toBeNull();
   });
 });

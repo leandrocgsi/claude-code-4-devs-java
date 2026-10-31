@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { CATEGORIES, FACETS, PRODUCTS_URL, buildProductResponse, halPage } from '../fixtures';
+import { CART_URL, CATEGORIES, FACETS, PRODUCTS_URL, buildCartResponse, buildProductResponse, halPage } from '../fixtures';
 
 const catalog = [
   buildProductResponse({ id: 1, name: 'Black Mug', category: 'Mug', featured: true }),
@@ -8,6 +8,7 @@ const catalog = [
 ];
 
 export const handlers = [
+  http.get(CART_URL, () => HttpResponse.json(buildCartResponse([]))),
   http.get(`${PRODUCTS_URL}/featured`, () => HttpResponse.json(halPage(catalog.slice(0, 1)))),
   http.get(`${PRODUCTS_URL}/recent`, () => HttpResponse.json(halPage(catalog))),
   http.get(`${PRODUCTS_URL}/facets`, () => HttpResponse.json(FACETS)),

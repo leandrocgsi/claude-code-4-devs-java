@@ -1,5 +1,5 @@
-import { useCartStore } from '@/app/store/modules/cart/useCartStore';
+import { useCart } from '@/hooks/useCart/useCart';
 
 export function useCartCount() {
-  return useCartStore((state) => Object.values(state.quantities).reduce((sum, quantity) => sum + quantity, 0));
+  return useCart().itemCount;
 }

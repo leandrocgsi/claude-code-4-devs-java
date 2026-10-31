@@ -59,7 +59,7 @@ Everything comes from `geek-shopping-api` through `NEXT_PUBLIC_API_URL` (axios t
 - A product's `imageUrl` is a path relative to the API; the service makes it absolute with `toApiUrl`. Always render product/category images through `components/ui/atoms/ProductImage`, which falls back to `/assets/no-image.jpg`.
 - Create/update send `multipart/form-data` with the part `product` as a JSON `Blob` (`application/json`) and an optional `image` file; sending the product as plain text makes the API answer 415.
 - The shop filter for the product size is named `productSize` (the API's `size` is the page size). Shop filters, sort and page live in the page URL (`hooks/useProductSearchParams`).
-- The cart is still local (Zustand, in memory) and resolves each product through `GET /api/product/v1/{id}` until the server-side cart exists.
+- The cart lives on the server (`/api/cart/v1`) and is identified by a UUID token generated in the browser (`useCartTokenStore`, persisted in `localStorage`); the `httpClient` request interceptor adds it as `X-Cart-Token` to every `/api/cart` call. The cart itself is TanStack Query data (`['cart']`, hooks `useCart`, `useAddToCart`, `useUpdateCartItem`, `useRemoveCartItem`, `useClearCart`); totals come from the API. Feedback of cart actions goes through `useToast`.
 
 ### Design tokens and the page-canvas convention
 

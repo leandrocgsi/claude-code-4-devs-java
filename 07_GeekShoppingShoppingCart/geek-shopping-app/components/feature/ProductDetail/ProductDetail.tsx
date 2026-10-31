@@ -21,7 +21,7 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ id }: ProductDetailProps) {
   const { data: product, isLoading, isError, error, refetch } = useProduct(id);
-  const addItem = useAddToCart();
+  const { addItem, isPending } = useAddToCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
@@ -97,11 +97,8 @@ export default function ProductDetail({ id }: ProductDetailProps) {
               ) : null}
               <Button
                 variant="primary"
-                disabled={!inStock}
-                onClick={() => {
-                  addItem(product.id, quantity);
-                  setAdded(true);
-                }}
+                disabled={!inStock || isPending}
+                onClick={() => addItem(product.id, quantity, () => setAdded(true))}
               >
                 {inStock ? 'Add to Cart' : 'Out of stock'}
               </Button>

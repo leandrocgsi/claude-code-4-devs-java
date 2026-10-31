@@ -97,3 +97,48 @@ export const CATEGORIES = [
   { name: 'Mug', productCount: 6, imageUrl: '/api/product/v1/1/image' },
   { name: 'Book', productCount: 8, imageUrl: null },
 ];
+
+export const CART_URL = `${API_URL}/api/cart/v1`;
+
+export interface CartItemResponse {
+  id: number;
+  productId: number;
+  name: string;
+  imageUrl: string | null;
+  color: string | null;
+  size: string | null;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+  stock: number;
+}
+
+export function buildCartItemResponse(overrides: Partial<CartItemResponse> = {}): CartItemResponse {
+  const productId = overrides.productId ?? overrides.id ?? 1;
+  const unitPrice = overrides.unitPrice ?? 25;
+  const quantity = overrides.quantity ?? 1;
+  return {
+    id: productId,
+    productId,
+    name: `Product ${productId}`,
+    imageUrl: `/api/product/v1/${productId}/image`,
+    color: null,
+    size: null,
+    unitPrice,
+    quantity,
+    lineTotal: unitPrice * quantity,
+    stock: 10,
+    ...overrides,
+  };
+}
+
+export function buildCartResponse(items: CartItemResponse[]) {
+  const subtotal = items.reduce((sum, item) => sum + item.lineTotal, 0);
+  return {
+    items,
+    itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    subtotal,
+    total: subtotal,
+    _links: { self: { href: CART_URL, type: 'GET' } },
+  };
+}

@@ -16,7 +16,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, onQuickView }: ProductCardProps) {
   const isWishlisted = useIsWishlisted(product.id);
   const { toggle } = useWishlist();
-  const addItem = useAddToCart();
+  const { addItem, isPending } = useAddToCart();
   const outOfStock = product.quantity <= 0;
 
   return (
@@ -29,7 +29,7 @@ export default function ProductCard({ product, onQuickView }: ProductCardProps) 
             type="button"
             className={styles.actionButton}
             onClick={() => addItem(product.id)}
-            disabled={outOfStock}
+            disabled={outOfStock || isPending}
             title={outOfStock ? 'Out of stock' : 'Add to cart'}
           >
             <FaShoppingCart />

@@ -1,91 +1,109 @@
-import { useCartStore } from '../cart/useCartStore';
+import { useCartTokenStore } from '../cart/useCartTokenStore';
+import { useToastStore } from '../global/useToastStore';
 import { useWishlistStore } from '../global/useWishlistStore';
 
-describe('useCartStore', () => {
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+const TOKEN_STORAGE_KEY = 'geek-shopping-cart-token';
+
+describe('useCartTokenStore', () => {
   beforeEach(() => {
-    useCartStore.setState({ quantities: {} });
+    localStorage.clear();
+    useCartTokenStore.setState({ token: null });
   });
 
-  it('starts empty and without any pre-seeded product', () => {
-    expect(useCartStore.getState().quantities).toEqual({});
+  it('starts without a token', () => {
+    expect(useCartTokenStore.getState().token).toBeNull();
   });
 
-  it('adds one unit by default', () => {
-    useCartStore.getState().addItem(5);
+  it('generates a UUID the first time a token is needed', () => {
+    const token = useCartTokenStore.getState().ensureToken();
 
-    expect(useCartStore.getState().quantities).toEqual({ 5: 1 });
+    expect(token).toMatch(UUID_PATTERN);
+    expect(useCartTokenStore.getState().token).toBe(token);
   });
 
-  it('adds the given quantity', () => {
-    useCartStore.getState().addItem(5, 3);
+  it('keeps the same token on the next calls', () => {
+    const first = useCartTokenStore.getState().ensureToken();
+    const second = useCartTokenStore.getState().ensureToken();
 
-    expect(useCartStore.getState().quantities).toEqual({ 5: 3 });
+    expect(second).toBe(first);
   });
 
-  it('sums the quantity of a product that is already in the cart', () => {
-    useCartStore.getState().addItem(5, 2);
-    useCartStore.getState().addItem(5, 4);
+  it('persists only the token in localStorage', () => {
+    const token = useCartTokenStore.getState().ensureToken();
 
-    expect(useCartStore.getState().quantities).toEqual({ 5: 6 });
+    const stored = JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY) as string);
+    expect(stored.state).toEqual({ token });
+    expect(stored.version).toBe(1);
   });
 
-  it('keeps different products apart', () => {
-    useCartStore.getState().addItem(1);
-    useCartStore.getState().addItem(2, 2);
+  it('still returns a token when localStorage refuses to save it', () => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('storage is full');
+    });
 
-    expect(useCartStore.getState().quantities).toEqual({ 1: 1, 2: 2 });
+    try {
+      const token = useCartTokenStore.getState().ensureToken();
+
+      expect(token).toMatch(UUID_PATTERN);
+      expect(useCartTokenStore.getState().token).toBe(token);
+    } finally {
+      setItem.mockRestore();
+    }
   });
 
-  it('replaces the quantity with setQuantity', () => {
-    useCartStore.getState().addItem(5, 4);
-    useCartStore.getState().setQuantity(5, 2);
+  it('starts without a token when localStorage refuses to read', async () => {
+    const getItem = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('storage is blocked');
+    });
 
-    expect(useCartStore.getState().quantities).toEqual({ 5: 2 });
+    try {
+      await useCartTokenStore.persist.rehydrate();
+
+      expect(useCartTokenStore.getState().ensureToken()).toMatch(UUID_PATTERN);
+    } finally {
+      getItem.mockRestore();
+    }
   });
 
-  it('removes the product when the quantity is set to zero', () => {
-    useCartStore.getState().addItem(5, 4);
-    useCartStore.getState().setQuantity(5, 0);
+  it('rehydrates the token saved by a previous visit', async () => {
+    localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({ state: { token: 'saved-token' }, version: 1 }));
 
-    expect(useCartStore.getState().quantities).toEqual({});
+    await useCartTokenStore.persist.rehydrate();
+
+    expect(useCartTokenStore.getState().ensureToken()).toBe('saved-token');
+  });
+});
+
+describe('useToastStore', () => {
+  beforeEach(() => {
+    useToastStore.setState({ toasts: [] });
   });
 
-  it('removes the product when the quantity is negative', () => {
-    useCartStore.getState().addItem(5, 4);
-    useCartStore.getState().setQuantity(5, -1);
-
-    expect(useCartStore.getState().quantities).toEqual({});
+  it('starts empty', () => {
+    expect(useToastStore.getState().toasts).toEqual([]);
   });
 
-  it('removes a single product and keeps the others', () => {
-    useCartStore.getState().addItem(1);
-    useCartStore.getState().addItem(2);
-    useCartStore.getState().removeItem(1);
+  it('adds toasts with distinct ids, tone and message', () => {
+    useToastStore.getState().show('success', 'Saved');
+    useToastStore.getState().show('error', 'Failed');
 
-    expect(useCartStore.getState().quantities).toEqual({ 2: 1 });
+    const toasts = useToastStore.getState().toasts;
+    expect(toasts.map((toast) => [toast.tone, toast.message])).toEqual([
+      ['success', 'Saved'],
+      ['error', 'Failed'],
+    ]);
+    expect(toasts[0].id).not.toBe(toasts[1].id);
   });
 
-  it('ignores the removal of a product that is not in the cart', () => {
-    useCartStore.getState().addItem(1);
-    useCartStore.getState().removeItem(9);
+  it('dismisses only the chosen toast', () => {
+    useToastStore.getState().show('info', 'One');
+    useToastStore.getState().show('info', 'Two');
+    const [first] = useToastStore.getState().toasts;
 
-    expect(useCartStore.getState().quantities).toEqual({ 1: 1 });
-  });
+    useToastStore.getState().dismiss(first.id);
 
-  it('clears everything', () => {
-    useCartStore.getState().addItem(1);
-    useCartStore.getState().addItem(2);
-    useCartStore.getState().clear();
-
-    expect(useCartStore.getState().quantities).toEqual({});
-  });
-
-  it('never mutates the previous state object', () => {
-    useCartStore.getState().addItem(1);
-    const before = useCartStore.getState().quantities;
-    useCartStore.getState().addItem(2);
-
-    expect(before).toEqual({ 1: 1 });
+    expect(useToastStore.getState().toasts.map((toast) => toast.message)).toEqual(['Two']);
   });
 });
 

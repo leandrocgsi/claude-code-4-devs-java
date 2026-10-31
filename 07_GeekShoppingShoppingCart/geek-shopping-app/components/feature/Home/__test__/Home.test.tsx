@@ -2,8 +2,8 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { http, HttpResponse } from 'msw';
 import { server } from '@/test/msw/server';
 import { CATEGORIES, PRODUCTS_URL, buildProductResponse, halPage } from '@/test/fixtures';
+import { serveCart } from '@/test/msw/serveCart';
 import { renderWithProviders } from '@/test/renderWithProviders';
-import { useCartStore } from '@/app/store/modules/cart/useCartStore';
 import { PLACEHOLDER_IMAGE } from '@/components/ui/atoms/ProductImage';
 import Home from '../Home';
 
@@ -12,10 +12,6 @@ function sectionOf(title: string) {
 }
 
 describe('Home', () => {
-  beforeEach(() => {
-    useCartStore.setState({ quantities: {} });
-  });
-
   it('shows a loading state in each data section first', () => {
     renderWithProviders(<Home />);
 
@@ -90,6 +86,7 @@ describe('Home', () => {
   });
 
   it('marks the sold out product listed in the recent section (AC-10)', async () => {
+    const cart = serveCart();
     renderWithProviders(<Home />);
 
     const recent = sectionOf('Recent Products');
@@ -98,7 +95,7 @@ describe('Home', () => {
     const disabledCart = within(recent).getByRole('button', { name: 'Out of stock' });
     expect(disabledCart).toBeDisabled();
     fireEvent.click(disabledCart);
-    expect(useCartStore.getState().quantities).toEqual({});
+    expect(cart.calls).toEqual([]);
   });
 
   it('shows the stars only for the product that has a rating', async () => {

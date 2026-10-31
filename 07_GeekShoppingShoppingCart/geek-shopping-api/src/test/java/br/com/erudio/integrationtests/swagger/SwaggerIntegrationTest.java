@@ -2,9 +2,11 @@ package br.com.erudio.integrationtests.swagger;
 
 import static io.restassured.RestAssured.given;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,10 +70,11 @@ class SwaggerIntegrationTest extends ApiIntegrationTest {
 
     @Test
     void onlyTheVersionedApiPathsAreDocumented() {
-        assertTrue(paths.keySet().stream().allMatch(path -> path.startsWith("/api/product/v1")), paths.keySet().toString());
+        assertTrue(paths.keySet().stream().allMatch(path -> path.startsWith("/api/product/v1") || path.startsWith("/api/cart/v1")), paths.keySet().toString());
         assertEquals(
             Set.of("/api/product/v1", "/api/product/v1/{id}", "/api/product/v1/{id}/image", "/api/product/v1/facets",
-                "/api/product/v1/featured", "/api/product/v1/recent", "/api/product/v1/categories"),
+                "/api/product/v1/featured", "/api/product/v1/recent", "/api/product/v1/categories",
+                "/api/cart/v1", "/api/cart/v1/items", "/api/cart/v1/items/{itemId}"),
             paths.keySet());
     }
 
@@ -120,5 +123,58 @@ class SwaggerIntegrationTest extends ApiIntegrationTest {
         assertTrue(statuses("/api/product/v1/recent", "get").contains("200"));
         assertTrue(statuses("/api/product/v1/facets", "get").contains("200"));
         assertTrue(statuses("/api/product/v1/categories", "get").contains("200"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> parameters(String path, String verb) {
+        return (List<Map<String, Object>>) operation(path, verb).get("parameters");
+    }
+
+    @Test
+    void everyCartOperationIsDocumentedWithItsRealStatuses() {
+        assertTrue(statuses("/api/cart/v1", "get").containsAll(Set.of("200", "400")), statuses("/api/cart/v1", "get").toString());
+        assertTrue(statuses("/api/cart/v1", "delete").containsAll(Set.of("204", "400")), statuses("/api/cart/v1", "delete").toString());
+        assertTrue(statuses("/api/cart/v1/items", "post").containsAll(Set.of("200", "400", "404")), statuses("/api/cart/v1/items", "post").toString());
+        assertTrue(statuses("/api/cart/v1/items/{itemId}", "put").containsAll(Set.of("200", "400", "404")), statuses("/api/cart/v1/items/{itemId}", "put").toString());
+        assertTrue(statuses("/api/cart/v1/items/{itemId}", "delete").containsAll(Set.of("204", "400", "404")), statuses("/api/cart/v1/items/{itemId}", "delete").toString());
+    }
+
+    @Test
+    void theCartDoesNotDocumentAForbiddenResponse() {
+        assertFalse(statuses("/api/cart/v1", "get").contains("403"));
+        assertFalse(statuses("/api/cart/v1/items", "post").contains("403"));
+    }
+
+    @Test
+    void everyCartOperationDeclaresTheRequiredTokenHeader() {
+        var operations = List.of(
+            Map.entry("/api/cart/v1", "get"),
+            Map.entry("/api/cart/v1", "delete"),
+            Map.entry("/api/cart/v1/items", "post"),
+            Map.entry("/api/cart/v1/items/{itemId}", "put"),
+            Map.entry("/api/cart/v1/items/{itemId}", "delete"));
+
+        for (var entry : operations) {
+            var header = parameters(entry.getKey(), entry.getValue()).stream()
+                .filter(parameter -> "X-Cart-Token".equals(parameter.get("name")))
+                .findFirst();
+            assertTrue(header.isPresent(), entry + " does not declare X-Cart-Token");
+            assertEquals("header", header.get().get("in"), entry.toString());
+            assertEquals(true, header.get().get("required"), entry.toString());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void theCartBodiesAreJsonAndTheItemIdIsAPathParameter() {
+        var post = operation("/api/cart/v1/items", "post");
+        var postContent = (Map<String, Object>) ((Map<String, Object>) post.get("requestBody")).get("content");
+        var put = operation("/api/cart/v1/items/{itemId}", "put");
+        var putContent = (Map<String, Object>) ((Map<String, Object>) put.get("requestBody")).get("content");
+
+        assertEquals(Set.of("application/json"), postContent.keySet());
+        assertEquals(Set.of("application/json"), putContent.keySet());
+        assertTrue(parameters("/api/cart/v1/items/{itemId}", "put").stream()
+            .anyMatch(parameter -> "itemId".equals(parameter.get("name")) && "path".equals(parameter.get("in"))));
     }
 }

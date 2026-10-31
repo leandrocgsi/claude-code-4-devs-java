@@ -83,6 +83,27 @@
   text-align: left;
 }
 
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.itemMeta {
+  color: var(--text-oninactive);
+  font-size: var(--font-size-14);
+}
+
+.inlineError {
+  margin-bottom: var(--spacing-12);
+}
+
+.tableActions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-12);
+}
+
 .thumbnail {
   width: 50px;
   height: 50px;
@@ -93,24 +114,6 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-8);
-}
-
-.quantityButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background-color: var(--brand-primary);
-  color: var(--on-primary);
-  cursor: pointer;
-}
-
-.quantityValue {
-  min-width: 24px;
-  text-align: center;
 }
 
 .removeButton {
@@ -129,21 +132,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-12);
-}
-
-.coupon {
-  display: flex;
-  gap: var(--spacing-8);
-}
-
-.coupon > :first-child {
-  flex: 1;
-}
-
-.couponMessage {
-  margin: 0;
-  color: var(--text-oninactive);
-  font-size: var(--font-size-14);
 }
 
 .summaryTitle {

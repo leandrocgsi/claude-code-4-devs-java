@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import br.com.erudio.exception.BadRequestException;
 import br.com.erudio.exception.ExceptionResponse;
+import br.com.erudio.exception.FieldValidationException;
 import br.com.erudio.exception.InvalidImageException;
 import br.com.erudio.exception.RequiredObjectIsNullException;
 import br.com.erudio.exception.ResourceNotFoundException;
@@ -116,6 +117,14 @@ public class CustomEntityResponseHandler extends ResponseEntityExceptionHandler 
             Exception ex, WebRequest request) {
         Map<String, String> errors = new LinkedHashMap<>();
         errors.put("image", ex.getMessage());
+        return validationProblem(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(FieldValidationException.class)
+    public final ResponseEntity<Object> handleFieldValidationExceptions(
+            Exception ex, WebRequest request) {
+        Map<String, String> errors = new LinkedHashMap<>();
+        errors.put(((FieldValidationException) ex).getField(), ex.getMessage());
         return validationProblem(ex, errors, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 

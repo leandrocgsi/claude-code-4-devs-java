@@ -3,11 +3,13 @@
 import { FormEvent, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/hooks/useCart/useCart';
+import { useClearCart } from '@/hooks/useClearCart/useClearCart';
 import { formatPrice } from '@/app/core/utils/currency';
 import Input from '@/components/ui/atoms/Input';
 import Select from '@/components/ui/atoms/Select';
 import Button from '@/components/ui/atoms/Button';
 import SectionTitle from '@/components/ui/atoms/SectionTitle';
+import Spinner from '@/components/ui/atoms/Spinner';
 import styles from './Checkout.module.css';
 
 const COUNTRY_OPTIONS = [
@@ -24,7 +26,8 @@ const PAYMENT_OPTIONS = [
 ];
 
 export default function Checkout() {
-  const { items, subtotal, shipping, total, clear } = useCart();
+  const { items, subtotal, total, isLoading } = useCart();
+  const clearCart = useClearCart();
   const [payment, setPayment] = useState('paypal');
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [createAccount, setCreateAccount] = useState(false);
@@ -33,7 +36,7 @@ export default function Checkout() {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     setOrderPlaced(true);
-    clear();
+    clearCart.mutate();
   };
 
   if (orderPlaced) {
@@ -46,6 +49,14 @@ export default function Checkout() {
             Continue shopping
           </Link>
         </div>
+      </section>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <section className={styles.wrapper}>
+        <Spinner label="Loading your cart" />
       </section>
     );
   }
@@ -134,9 +145,9 @@ export default function Checkout() {
           </SectionTitle>
           <div className={styles.summary}>
             {items.map((item) => (
-              <div key={item.product.id} className={styles.summaryRow}>
+              <div key={item.id} className={styles.summaryRow}>
                 <span>
-                  {item.product.name} × {item.quantity}
+                  {item.name} × {item.quantity}
                 </span>
                 <span>{formatPrice(item.lineTotal)}</span>
               </div>
@@ -145,10 +156,6 @@ export default function Checkout() {
             <div className={styles.summaryRow}>
               <span>Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
-            </div>
-            <div className={styles.summaryRow}>
-              <span>Shipping</span>
-              <span>{formatPrice(shipping)}</span>
             </div>
             <div className={styles.summaryTotalRow}>
               <span>Total</span>
